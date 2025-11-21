@@ -14,7 +14,7 @@ fullstack-poc/
 - Node.js (LTS) & npm
 - Angular CLI (`npm i -g @angular/cli`)
 - Java 21 (or OpenJDK 21)
-- Maven Wrapper (included from Spring Initializr)
+- Gradle Wrapper (included from Spring Initializr)
 - curl & unzip
 
 ## How to Run
