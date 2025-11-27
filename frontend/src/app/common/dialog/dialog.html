@@ -1,17 +1,17 @@
-<h2 mat-dialog-title>{{ data.title }}</h2>
+<h2 mat-dialog-title class="fw-bold">{{ data.title }}</h2>
 <div mat-dialog-content>
   <ng-container *ngIf="data.contentTemplate">
-    <ng-container *ngTemplateOutlet="data.contentTemplate"></ng-container>
+    <ng-container *ngTemplateOutlet="data.contentTemplate; context: data.templateContext">
+    </ng-container>
   </ng-container>
 </div>
 <div mat-dialog-actions align="end" class="flex gap-2">
-  <button (click)="onCancel()" class="btn btn-light btn-sm" style="width: 70px">
+  <button (click)="onCancel()" class="btn btn-light btn-sm fixed-btn">
     {{ data.cancelText || 'Cancel' }}
   </button>
 
   <button
-    class="btn btn-primary btn-sm"
-    style="width: 70px"
+    class="btn btn-primary btn-sm fixed-btn"
     [disabled]="!data.isFormValid()"
     (click)="dialogRef.close(true)"
   >

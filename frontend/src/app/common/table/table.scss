@@ -5,3 +5,17 @@
   background-color: #0d6efd;
   color: #fff;
 }
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  min-width: 500px;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 200px;
+}
