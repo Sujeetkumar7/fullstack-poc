@@ -22,8 +22,8 @@ public class TransactionController {
     @Autowired
     private LambdaService lambdaService;
 
-    @GetMapping
-    public ResponseEntity<String> triggerAnalytics() {
+    @GetMapping("/analytics")
+    public ResponseEntity<String> triggerAnalysis() {
         String response = lambdaService.invokeLambda();
         return ResponseEntity.ok(response);
     }
@@ -51,7 +51,7 @@ public class TransactionController {
     }
 
     // GET /transaction/analysis/{user_id}
-    @GetMapping("/analysis/{user_id}")
+    @GetMapping("/summery/{user_id}")
     public ResponseEntity<?> analysis(@PathVariable("user_id") String userId) {
         List<Transaction> txns = transactionService.findByUserId(userId);
 
