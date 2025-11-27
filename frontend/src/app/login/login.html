@@ -1,0 +1,25 @@
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+  <div class="card p-4 shadow" style="width: 320px">
+    <h2 class="text-center mb-4">Login</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input id="username" type="text" class="form-control" formControlName="username" />
+        <div
+          *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+          class="text-danger mt-1"
+        >
+          <small *ngIf="loginForm.get('username')?.errors?.['required']"
+            >Username is required.</small
+          >
+          <small *ngIf="loginForm.get('username')?.errors?.['minlength']"
+            >Minimum 3 characters required.</small
+          >
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mt-4" [disabled]="loginForm.invalid">
+        Login
+      </button>
+    </form>
+  </div>
+</div>

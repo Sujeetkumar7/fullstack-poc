@@ -1,0 +1,16 @@
+<div [class.sidebar-open]="sidebarOpen" class="sidebar bg-light border-end">
+  <div class="py-3 mt-3">
+    <ul class="nav flex-column gap-3">
+      <li *ngFor="let item of menuItems" class="small py-2 px-3">
+        <div
+          class="cursor-pointer nav-link"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <i class="bi {{ item.icon }} me-2"></i> {{ item.label }}
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
