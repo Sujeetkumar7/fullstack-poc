@@ -1,0 +1,52 @@
+<div class="container">
+    <h2>User Dashboard</h2>
+    <!--UserName Input-->
+    <mat-form-field appearance="outline">
+        <mat-label>userName</mat-label>
+        <input matInput [(ngModel)]="userName">
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="searchUserHistory()">Load Details</button>
+    <div class="balance-box" *ngIf = "balance">
+        <h3>Balance: {{ balance }}</h3>
+        <button mat-raised-button color="accent" (click)="openTransfer()">Transfer Money</button>
+    </div>
+
+<!--Transaction History Table-->
+<h3 *ngIf="transacations.length">Transaction History</h3>
+<table mat-table [dataSource]="transacations" class="mat-elevation-z8" *ngIf="transacations.length">
+
+     <!-- Id Column -->
+    <ng-container matColumnDef="transactionId">
+        <th mat-header-cell *matHeaderCellDef> ID </th>
+        <td mat-cell *matCellDef="let element"> {{element.transactionId}} </td>
+    </ng-container>
+     <!-- Type Column -->
+    <ng-container matColumnDef="transactionType">
+        <th mat-header-cell *matHeaderCellDef> Type </th>
+        <td mat-cell *matCellDef="let element"> {{element.transactionType}} </td>
+    </ng-container>
+    
+    <!-- Amount Column -->
+    <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef> Amount </th>
+        <td mat-cell *matCellDef="let element"> {{element.amount}} </td>
+    </ng-container>
+    <!-- Date Column -->
+    <ng-container matColumnDef="timestamp">
+        <th mat-header-cell *matHeaderCellDef> Date </th>
+        <td mat-cell *matCellDef="let element"> {{element.timestamp | date:'short'}} </td>
+    </ng-container>
+     <!-- userName Column -->
+    <ng-container matColumnDef="username">
+        <th mat-header-cell *matHeaderCellDef> UserName </th>
+        <td mat-cell *matCellDef="let element"> {{element.username}} </td>
+    </ng-container>
+
+   
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+</table>
+</div>
+
