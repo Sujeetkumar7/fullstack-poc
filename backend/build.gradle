@@ -20,12 +20,16 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	// Add Spring Data MongoDB starter for proper MongoDB support
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	implementation 'software.amazon.awssdk:dynamodb:2.20.143'
+//	implementation 'software.amazon.awssdk:dynamodb:2.20.143'
+	// DynamoDB Enhanced client (higher-level mapper)
+//	implementation 'software.amazon.awssdk:dynamodb-enhanced:2.20.143'
 
-	implementation 'org.mongodb:mongodb-driver-sync:4.11.1'
+//	implementation 'org.mongodb:mongodb-driver-sync:4.11.1'
 
 	// AWS SDK v2 for Lambda
 	implementation 'software.amazon.awssdk:lambda:2.20.143'
@@ -38,6 +42,8 @@ dependencies {
 
 	// JSON processing
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+    // SLF4J for logging
+	implementation 'org.slf4j:slf4j-api:2.0.17'
 
 	// Lombok (optional for boilerplate reduction)
 	compileOnly 'org.projectlombok:lombok'
