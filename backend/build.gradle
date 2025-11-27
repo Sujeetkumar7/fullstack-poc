@@ -22,6 +22,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	implementation 'software.amazon.awssdk:dynamodb:2.20.143'
 
@@ -29,6 +30,9 @@ dependencies {
 
 	// AWS SDK v2 for Lambda
 	implementation 'software.amazon.awssdk:lambda:2.20.143'
+
+	// AWS SDK v2 for S3
+	implementation 'software.amazon.awssdk:s3:2.20.143'
 
 	// AWS SDK v2 for Glue
 	implementation 'software.amazon.awssdk:glue:2.20.143'
