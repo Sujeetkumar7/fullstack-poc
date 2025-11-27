@@ -1,24 +1,29 @@
-package com.example.backend.controller;
+package com.wmn.backend.controller;
 
 
-import com.example.backend.service.LambdaService;
+import com.wmn.backend.service.LambdaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/analyse")
-public class AnalysisController {
+public class TransactionController {
 
     @Autowired
     private LambdaService lambdaService;
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<String> triggerAnalysis(@PathVariable String userId) {
-        String response = lambdaService.invokeLambda(userId);
+    @GetMapping
+    public ResponseEntity<String> triggerAnalytics() {
+        String response = lambdaService.invokeLambda();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("download")
+    public ResponseEntity<String> downloadAnalyticsReport() {
+        String response = lambdaService.invokeLambda();
         return ResponseEntity.ok(response);
     }
 }

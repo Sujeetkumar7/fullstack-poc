@@ -1,4 +1,4 @@
-package com.example.backend.service;
+package com.wmn.backend.service;
 
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
@@ -18,10 +18,10 @@ public class LambdaService {
                 .build();
     }
 
-    public String invokeLambda(String userId) {
+    public String invokeLambda() {
         InvokeRequest request = InvokeRequest.builder()
                 .functionName("FunctionToTriggerGlueJob")
-                .payload(SdkBytes.fromUtf8String("{\"user_id\":\"" + userId + "\"}"))
+                .payload(SdkBytes.fromUtf8String(""))
                 .build();
 
         InvokeResponse response = lambdaClient.invoke(request);
