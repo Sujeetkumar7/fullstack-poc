@@ -20,6 +20,8 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	// Add Spring Data MongoDB starter for proper MongoDB support
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -42,6 +44,8 @@ dependencies {
 
 	// JSON processing
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+    // SLF4J for logging
+	implementation 'org.slf4j:slf4j-api:2.0.17'
 
 	// Lombok (optional for boilerplate reduction)
 	compileOnly 'org.projectlombok:lombok'
