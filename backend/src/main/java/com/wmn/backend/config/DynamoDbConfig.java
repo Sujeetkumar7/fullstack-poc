@@ -1,4 +1,4 @@
-package com.example.backend.config;
+package com.wmn.backend.config;
 
 //import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.context.annotation.Bean;

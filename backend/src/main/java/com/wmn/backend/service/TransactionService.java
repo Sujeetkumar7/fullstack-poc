@@ -1,11 +1,10 @@
-package com.example.backend.service;
+package com.wmn.backend.service;
 
-import com.example.backend.model.Transaction;
-import com.example.backend.repository.TransactionRepository;
+import com.wmn.backend.model.Transaction;
+import com.wmn.backend.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TransactionService {

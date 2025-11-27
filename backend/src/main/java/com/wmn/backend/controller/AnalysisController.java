@@ -1,7 +1,7 @@
-package com.example.backend.controller;
+package com.wmn.backend.controller;
 
 
-import com.example.backend.service.LambdaService;
+import com.wmn.backend.service.LambdaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,9 +1,9 @@
-package com.example.backend.controller;
+package com.wmn.backend.controller;
 
-import com.example.backend.model.Transaction;
-import com.example.backend.model.TransferResponse;
-import com.example.backend.service.TransactionService;
-import com.example.backend.utils.CommonUtils;
+import com.wmn.backend.model.Transaction;
+import com.wmn.backend.model.TransferResponse;
+import com.wmn.backend.service.TransactionService;
+import com.wmn.backend.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

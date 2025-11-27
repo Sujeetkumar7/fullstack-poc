@@ -1,4 +1,4 @@
-package com.example.backend.utils;
+package com.wmn.backend.utils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

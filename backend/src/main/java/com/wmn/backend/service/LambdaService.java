@@ -1,4 +1,4 @@
-package com.example.backend.service;
+package com.wmn.backend.service;
 
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;

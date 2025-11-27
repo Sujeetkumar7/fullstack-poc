@@ -1,4 +1,4 @@
-package com.example.backend.model;
+package com.wmn.backend.model;
 
 import lombok.Data;
 import lombok.Getter;

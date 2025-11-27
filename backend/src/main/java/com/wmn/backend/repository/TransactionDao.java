@@ -1,4 +1,4 @@
-package com.example.backend.repository;
+package com.wmn.backend.repository;
 
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.example.backend.init;
+package com.wmn.backend.init;
 
 import org.springframework.stereotype.Component;
 
