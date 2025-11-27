@@ -2,9 +2,11 @@ package com.wmn.backend.controller;
 
 import com.wmn.backend.model.Transaction;
 import com.wmn.backend.model.TransferResponse;
+import com.wmn.backend.service.LambdaService;
 import com.wmn.backend.service.TransactionService;
 import com.wmn.backend.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,11 +17,21 @@ import java.util.Map;
 @RequestMapping("/transaction")
 @Slf4j
 public class TransactionController {
+    @Autowired
+    private TransactionService transactionService;
+    @Autowired
+    private LambdaService lambdaService;
 
-    private final TransactionService transactionService;
+    @GetMapping
+    public ResponseEntity<String> triggerAnalytics() {
+        String response = lambdaService.invokeLambda();
+        return ResponseEntity.ok(response);
+    }
 
-    public TransactionController(TransactionService transactionService) {
-        this.transactionService = transactionService;
+    @GetMapping("download")
+    public ResponseEntity<String> downloadAnalyticsReport() {
+        String response = lambdaService.invokeLambda();
+        return ResponseEntity.ok(response);
     }
 
     // POST /transaction/transfer
