@@ -7,4 +7,5 @@ export const API_ENDPOINTS = {
   users: '/users',
   getAllUsers: '/allUsers',
   createUser: '/createUser',
+  transaction: '/transactions',
 };

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Spinner } from '../common/spinner/spinner';
-import { UserService } from '../services/user';
+import { UserService } from '../services/user-service/user';
 import { finalize } from 'rxjs/operators';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -62,7 +62,7 @@ export class Login {
             horizontalPosition: 'end',
             verticalPosition: 'top',
           });
-          this.router.navigate(['/admin']);
+          // this.router.navigate(['/admin']);
         },
       });
   }

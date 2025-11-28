@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ENV, API_ENDPOINTS } from '../constants';
+import { ENV, API_ENDPOINTS } from '../../constants';
 
-export interface ApiUser {
+export interface UserRequest {
+  currentBalance: number;
+  userName: string;
+  userRole: string;
+}
+
+export interface UserResponse {
   currentBalance: number;
   userId: string;
   userName: string;
@@ -20,21 +26,20 @@ export class UserService {
     return this.http.get<any>(`${this.apiUrl + API_ENDPOINTS.users}/${username}`);
   }
 
-  getAllUsers(): Observable<ApiUser[]> {
-    return this.http.get<ApiUser[]>(this.apiUrl + API_ENDPOINTS.users + API_ENDPOINTS.getAllUsers);
-  }
-
-  createUser(user: ApiUser): Observable<string> {
-    return this.http.post<string>(
-      this.apiUrl + API_ENDPOINTS.users + API_ENDPOINTS.createUser,
-      user,
-      {
-        responseType: 'text' as 'json',
-      }
+  getAllUsers(): Observable<UserResponse[]> {
+    return this.http.get<UserResponse[]>(
+      this.apiUrl + API_ENDPOINTS.users + API_ENDPOINTS.getAllUsers
     );
   }
 
-  updateUser(userId: string, user: ApiUser): Observable<string> {
+  createUser(user: UserRequest): Observable<UserResponse> {
+    return this.http.post<UserResponse>(
+      this.apiUrl + API_ENDPOINTS.users + API_ENDPOINTS.createUser,
+      user
+    );
+  }
+
+  updateUser(userId: string, user: UserResponse): Observable<string> {
     return this.http.put<string>(`${this.apiUrl + API_ENDPOINTS.users}/${userId}`, user, {
       responseType: 'text' as 'json',
     });

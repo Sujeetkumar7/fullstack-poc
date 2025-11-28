@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Table } from '../../common/table/table';
 import { Dialog } from '../../common/dialog/dialog';
 import { AdminLayout } from '../admin-layout/admin-layout';
-import { UserService, ApiUser } from '../../services/user';
+import { UserService, UserResponse, UserRequest } from '../../services/user-service/user';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { Spinner } from '../../common/spinner/spinner';
@@ -49,7 +49,7 @@ interface User {
   styleUrls: ['./admin.scss'],
 })
 export class Admin implements OnInit {
-  users: ApiUser[] = [];
+  users: UserResponse[] = [];
 
   @ViewChild('addUserTemplate') addUserTemplate!: TemplateRef<any>;
   @ViewChild('deleteUserTemplate') deleteUserTemplate!: TemplateRef<any>;
@@ -92,7 +92,7 @@ export class Admin implements OnInit {
       },
     });
 
-    const mockData: ApiUser[] = [
+    const mockData: UserResponse[] = [
       {
         currentBalance: 2500.75,
         userId: 'U001',
@@ -124,6 +124,10 @@ export class Admin implements OnInit {
   }
 
   openAddUser() {
+    this.userForm.reset();
+    this.userForm.markAsPristine();
+    this.userForm.markAsUntouched();
+
     const dialogRef = this.dialog.open(Dialog, {
       width: '400px',
       disableClose: true,
@@ -142,25 +146,18 @@ export class Admin implements OnInit {
   handleAddUser(dialogRef: any) {
     this.loading = true;
 
-    const requestBody: ApiUser = {
-      userId: 'U003',
+    const requestBody: UserRequest = {
       userName: this.userForm.value.username,
       currentBalance: 0,
       userRole: 'USER',
     };
 
     this.userService.createUser(requestBody).subscribe({
-      next: (response: any) => {
+      next: (response: UserResponse) => {
         console.log('API Response:', response);
 
-        const addedUser: ApiUser = {
-          userId: response?.userId ? response.userId : requestBody.userId,
-          userName: response?.userName ? response.userName : requestBody.userName,
-          currentBalance: response?.currentBalance ?? requestBody.currentBalance,
-          userRole: response?.userRole ?? requestBody.userRole,
-        };
+        this.users = [...this.users, response];
 
-        this.users = [...this.users, addedUser];
         this.loading = false;
         this.cdr.detectChanges();
 
@@ -221,7 +218,7 @@ export class Admin implements OnInit {
   }
 
   handleEditUser(dialogRef: any, user: User) {
-    const updatedUser: ApiUser = {
+    const updatedUser: UserResponse = {
       userId: user.userId,
       userName: this.userForm.value.username,
       currentBalance: user.currentBalance,

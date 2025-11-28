@@ -1,59 +1,76 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { AdminLayout } from '../admin-layout/admin-layout';
 import { CommonModule } from '@angular/common';
+import { AnalyticsService } from '../../services/analytics-service/analytics';
+import { interval, Subscription } from 'rxjs';
+import { switchMap, takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-analytics',
+  standalone: true,
   imports: [AdminLayout, CommonModule],
   templateUrl: './analytics.html',
-  styleUrl: './analytics.scss',
+  styleUrls: ['./analytics.scss'],
 })
-export class Analytics {
+export class Analytics implements OnDestroy {
   isRunning = false;
   statusMessage = '';
-  analyticsCompleted = false;
-  analyticsData: any[] = [];
+  downloadUrl: string | null = null;
+  pollSubscription!: Subscription;
 
-  title = 'Admin Dashboard';
-  username = 'AdminUser';
-
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private analyticsService: AnalyticsService, private cdr: ChangeDetectorRef) {}
 
   runAnalytics() {
     this.isRunning = true;
     this.statusMessage = 'Analytics is running...';
-    this.analyticsCompleted = false;
+    this.downloadUrl = null;
 
-    setTimeout(() => {
-      this.isRunning = false;
-      this.statusMessage = 'Analytics completed!';
-      this.analyticsCompleted = true;
+    this.analyticsService.runAnalytics().subscribe({
+      next: (response: any) => {
+        console.log('Analytics started:', response);
+        this.startPollingForDownload();
+      },
+      error: (err: any) => {
+        console.error('Failed to start analytics:', err);
+        this.isRunning = false;
+        this.statusMessage = 'Failed to start analytics.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
 
-      this.analyticsData = [
-        { id: 1, username: 'John', amount: 120 },
-        { id: 2, username: 'Alice', amount: 95 },
-        { id: 3, username: 'Bob', amount: 80 },
-      ];
-
-      this.cdr.detectChanges();
-    }, 3000);
+  startPollingForDownload() {
+    this.pollSubscription = interval(10000)
+      .pipe(switchMap(() => this.analyticsService.getDownloadUrl()))
+      .subscribe({
+        next: (response) => {
+          console.log('Download API response:', response);
+          if (response.includes('http')) {
+            this.downloadUrl = response;
+            this.isRunning = false;
+            this.statusMessage = 'Analytics completed! Report ready.';
+            this.cdr.detectChanges();
+            this.pollSubscription.unsubscribe();
+          }
+        },
+        error: (err) => {
+          console.error('Polling failed:', err);
+          this.isRunning = false;
+          this.statusMessage = 'Error while fetching report.';
+          this.cdr.detectChanges();
+          this.pollSubscription.unsubscribe();
+        },
+      });
   }
 
   downloadReport() {
-    const csvContent = this.convertToCSV(this.analyticsData);
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'analytics_report.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (!this.downloadUrl) return;
+    window.open(this.downloadUrl, '_blank');
   }
 
-  convertToCSV(data: any[]): string {
-    const headers = Object.keys(data[0]).join(',');
-    const rows = data.map((row) => Object.values(row).join(',')).join('\n');
-    return `${headers}\n${rows}`;
+  ngOnDestroy() {
+    if (this.pollSubscription) {
+      this.pollSubscription.unsubscribe();
+    }
   }
 }
