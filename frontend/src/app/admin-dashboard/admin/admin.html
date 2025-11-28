@@ -10,7 +10,7 @@
         <app-spinner [size]="40" color="#1976d2"></app-spinner>
       </div>
 
-      <div *ngIf="!loading">
+      <div *ngIf="!loading && users.length > 0">
         <app-table
           [data]="users"
           [displayedColumns]="['userId', 'userName', 'userRole']"
