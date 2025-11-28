@@ -4,13 +4,20 @@
       <h5 class="mb-0">User Management</h5>
       <button class="btn btn-primary btn-sm" (click)="openAddUser()">Add User</button>
     </div>
+
     <div class="card-body">
-      <app-table
-        [data]="users"
-        [displayedColumns]="['id', 'username']"
-        (edit)="onEditUser($event)"
-        (delete)="confirmDelete($event)"
-      ></app-table>
+      <div *ngIf="loading" class="text-center my-5">
+        <app-spinner [size]="40" color="#1976d2"></app-spinner>
+      </div>
+
+      <div *ngIf="!loading">
+        <app-table
+          [data]="users"
+          [displayedColumns]="['userId', 'userName']"
+          (edit)="onEditUser($event)"
+          (delete)="confirmDelete($event)"
+        ></app-table>
+      </div>
     </div>
   </div>
 
@@ -36,7 +43,7 @@
 
   <ng-template #deleteUserTemplate let-user>
     <p>
-      Are you sure you want to delete <strong>{{ user.username }}</strong
+      Are you sure you want to delete <strong>{{ user.userName }}</strong
       >?
     </p>
   </ng-template>

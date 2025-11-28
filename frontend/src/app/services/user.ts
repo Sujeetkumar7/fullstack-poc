@@ -1,0 +1,44 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { ENV, API_ENDPOINTS } from '../constants';
+
+export interface ApiUser {
+  currentBalance: number;
+  userId: string;
+  userName: string;
+  userRole: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private apiUrl = ENV.apiUrl;
+
+  constructor(private http: HttpClient) {}
+
+  getAllUsers(): Observable<ApiUser[]> {
+    return this.http.get<ApiUser[]>(this.apiUrl + API_ENDPOINTS.users + API_ENDPOINTS.getAllUsers);
+  }
+
+  createUser(user: ApiUser): Observable<string> {
+    return this.http.post<string>(
+      this.apiUrl + API_ENDPOINTS.users + API_ENDPOINTS.createUser,
+      user,
+      {
+        responseType: 'text' as 'json',
+      }
+    );
+  }
+
+  updateUser(userId: string, user: ApiUser): Observable<string> {
+    return this.http.put<string>(`${this.apiUrl + API_ENDPOINTS.users}/${userId}`, user, {
+      responseType: 'text' as 'json',
+    });
+  }
+
+  deleteUser(userId: string): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl + API_ENDPOINTS.users}/${userId}`, {
+      responseType: 'text' as 'json',
+    });
+  }
+}
