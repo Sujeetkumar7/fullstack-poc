@@ -30,10 +30,7 @@ export class UserService {
   }
 
   createUser(user: UserRequest): Observable<UserResponse> {
-    return this.http.post<UserResponse>(
-      this.apiUrl + API_ENDPOINTS.users + API_ENDPOINTS.createUser,
-      user
-    );
+    return this.http.post<UserResponse>(this.apiUrl + API_ENDPOINTS.users, user);
   }
 
   updateUser(userId: string, user: UserResponse): Observable<string> {

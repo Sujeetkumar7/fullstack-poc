@@ -62,7 +62,6 @@ export class Login {
             horizontalPosition: 'end',
             verticalPosition: 'top',
           });
-          // this.router.navigate(['/admin']);
         },
       });
   }

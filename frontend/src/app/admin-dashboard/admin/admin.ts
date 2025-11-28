@@ -87,47 +87,35 @@ export class Admin implements OnInit {
 
   loadUsers() {
     this.loading = true;
+
     this.userService.getAllUsers().subscribe({
       next: (data) => {
         this.users = data;
         console.log('API data loaded:', data);
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching users:', err);
         this.loading = false;
+        this.cdr.detectChanges();
+
+        // const mockData: UserResponse[] = [
+        //   { currentBalance: 2500.75, userId: 'U001', userName: 'Avinash', userRole: 'USER' },
+        //   { currentBalance: 6500.75, userId: 'A001', userName: 'Sujeet K P', userRole: 'ADMIN' },
+        //   { currentBalance: 3500.75, userId: 'U002', userName: 'Goutham T', userRole: 'USER' },
+        // ];
+
+        // of(mockData)
+        //   .pipe(delay(2000)) // Optional delay for fallback
+        //   .subscribe((data) => {
+        //     this.users = data;
+        //     console.log('Mock data loaded as fallback:', data);
+        //     this.loading = false; // Stop loader only after mock data is ready
+        //     this.cdr.detectChanges();
+        //   });
       },
     });
-
-    const mockData: UserResponse[] = [
-      {
-        currentBalance: 2500.75,
-        userId: 'U001',
-        userName: 'Avinash',
-        userRole: 'USER',
-      },
-      {
-        currentBalance: 6500.75,
-        userId: 'A001',
-        userName: 'Sujeet K P',
-        userRole: 'ADMIN',
-      },
-      {
-        currentBalance: 3500.75,
-        userId: 'U002',
-        userName: 'Goutham T',
-        userRole: 'USER',
-      },
-    ];
-
-    of(mockData)
-      .pipe(delay(5000))
-      .subscribe((data) => {
-        this.users = data;
-        console.log('Mock data loaded after delay:', data);
-        this.loading = false;
-        this.cdr.detectChanges();
-      });
   }
 
   openAddUser() {
