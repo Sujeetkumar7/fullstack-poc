@@ -125,4 +125,22 @@ public class DynamoDBUserService {
         String userRole = item.getOrDefault("user_role", AttributeValue.builder().s("").build()).s();
         return new UserResponseDto(userId, username, currentBalance, userRole);
     }
+
+    /**
+     * Update the user's current balance attribute in DynamoDB.
+     *
+     */
+    public void updateUserBalance(String userId, double newBalance) {
+        Map<String, AttributeValue> key = Collections.singletonMap("userId", AttributeValue.builder().s(userId).build());
+        Map<String, AttributeValue> exprVals = Collections.singletonMap(":current_balance", AttributeValue.builder().n(Double.toString(newBalance)).build());
+
+        UpdateItemRequest req = UpdateItemRequest.builder()
+                .tableName(tableName)
+                .key(Map.of("user_id", AttributeValue.builder().s(userId).build()))
+                .updateExpression("SET current_balance = :current_balance")
+                .expressionAttributeValues(exprVals)
+                .build();
+
+        dynamoDbClient.updateItem(req);
+    }
 }
