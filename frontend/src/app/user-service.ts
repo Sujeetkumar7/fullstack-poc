@@ -26,8 +26,8 @@ export class UserService {
   getUsers(): Observable<User[]>{
     // Use localhost so the browser can reach the backend on the host machine.
     // Consider moving this URL into `environment.ts` for different deployments.
-    // return this.http.get<User[]>('http://localhost:8080/users/allUsers');
-    return of(this.users);
+    return this.http.get<User[]>('http://localhost:8080/users/');
+    // return of(this.users);
   }
 
 }
