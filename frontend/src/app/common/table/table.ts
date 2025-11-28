@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, AfterViewInit, EventEmitter, Output } from '@angular/core';
+import { Component, Input, ViewChild, AfterViewInit, EventEmitter, Output, OnChanges } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { CommonModule } from '@angular/common';
@@ -25,6 +25,8 @@ import { FormsModule } from '@angular/forms';
 export class Table implements AfterViewInit {
   @Input() data: any[] = [];
   @Input() displayedColumns: string[] = [];
+  @Input() showFilter: boolean = true;
+  @Input() showActions: boolean = true;
 
   @Output() edit = new EventEmitter<any>();
   @Output() delete = new EventEmitter<any>();
@@ -49,7 +51,7 @@ export class Table implements AfterViewInit {
   ngOnChanges() {
     this.originalData = this.data;
     this.dataSource.data = this.data;
-    this.allColumns = [...this.displayedColumns, 'actions'];
+    this.allColumns = this.showActions ? [...this.displayedColumns, 'actions'] : [...this.displayedColumns];
     this.updatePagination();
   }
 
