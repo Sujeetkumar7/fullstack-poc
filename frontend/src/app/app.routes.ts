@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from './login/login';
 import { Admin } from './admin-dashboard/admin/admin';
 import { Analytics } from './admin-dashboard/analytics/analytics';
-import { UserComponent } from './user-component/user-component';
+import { UserComponent } from './user-dashboard/user-component/user-component';
 
 
 export const routes: Routes = [

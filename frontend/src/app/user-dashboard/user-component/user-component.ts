@@ -2,21 +2,17 @@ import { Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { TransactionService } from '../transaction-service';
-import { UserService } from '../user-service';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { TransactionService } from '../../transaction-service';
+import { UserService } from '../../user-service';
 import { MatTableModule } from '@angular/material/table';
 import { TransferDialogComponent } from '../transfer-dialog-component/transfer-dialog-component';
-import { from } from 'rxjs';
-import { MatButtonModule } from '@angular/material/button';
-import { HttpClientModule } from '@angular/common/http';
-import { MatSelectModule } from '@angular/material/select';
+import { UserLayout } from '../user-layout/user-layout';
+import { Table } from '../../common/table/table';
 
 @Component({
   selector: 'app-user-component',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule, MatTableModule, MatDialogModule,MatButtonModule,MatSelectModule],
+  imports: [CommonModule, FormsModule, MatTableModule, MatDialogModule, UserLayout, Table],
   templateUrl: './user-component.html',
   styleUrls: ['./user-component.scss'],
 })
@@ -26,6 +22,7 @@ export class UserComponent implements OnInit {
   users: any[] = [];
   transacations: any[] = [];
   loadingHistory = false;
+  searchAttempted = false;
 
   displayedColumns = ['transactionId', 'transactionType', 'amount','timestamp', 'username'];
 
@@ -39,9 +36,11 @@ export class UserComponent implements OnInit {
   }
   
   searchUserHistory(){
-    if(!this.userName) return;
+    const name = this.userName?.trim();
+    if(!name || name.length < 3) return;
     this.loadingHistory = true;
-    this.transactionService.getTransactionHistory(this.userName).subscribe({
+    this.searchAttempted = true;
+    this.transactionService.getTransactionHistory(name).subscribe({
       next: (res: any[]) => {
         this.ngZone.run(() => {
           // sort by timestamp desc if timestamp present
@@ -55,7 +54,7 @@ export class UserComponent implements OnInit {
             this.transacations = res || [];
           }
 
-          const user = this.users.find(u => u.userName === this.userName || u.username === this.userName);
+          const user = this.users.find(u => u.userName === name || u.username === name);
           this.balance = user ? (user.currentbalance ?? user.currentBalance ?? 0) : 0;
           this.loadingHistory = false;
         });
@@ -88,5 +87,14 @@ export class UserComponent implements OnInit {
     });
   }
 
-  
+  onUserNameChange(value: string) {
+    this.userName = value;
+    const name = value?.trim();
+    if (!name || name.length < 3) {
+      this.transacations = [];
+      this.balance = 0;
+      this.loadingHistory = false;
+      this.searchAttempted = false;
+    }
+  }
 }
