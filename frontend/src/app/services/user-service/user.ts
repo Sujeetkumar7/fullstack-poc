@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { ENV, API_ENDPOINTS } from '../../constants';
 
 export interface UserRequest {
-  currentBalance: number;
   userName: string;
   userRole: string;
 }
@@ -27,9 +26,7 @@ export class UserService {
   }
 
   getAllUsers(): Observable<UserResponse[]> {
-    return this.http.get<UserResponse[]>(
-      this.apiUrl + API_ENDPOINTS.users + API_ENDPOINTS.getAllUsers
-    );
+    return this.http.get<UserResponse[]>(this.apiUrl + API_ENDPOINTS.users);
   }
 
   createUser(user: UserRequest): Observable<UserResponse> {

@@ -30,12 +30,46 @@
           *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched"
           class="text-danger mt-1"
         >
-          <small *ngIf="userForm.get('username')?.errors?.['required']">
-            Username is required.
-          </small>
-          <small *ngIf="userForm.get('username')?.errors?.['minlength']">
-            Minimum 3 characters required.
-          </small>
+          <small *ngIf="userForm.get('username')?.errors?.['required']"
+            >Username is required.</small
+          >
+          <small *ngIf="userForm.get('username')?.errors?.['minlength']"
+            >Minimum 3 characters required.</small
+          >
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Role</label>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="roleUser"
+              value="USER"
+              formControlName="role"
+            />
+            <label class="form-check-label" for="roleUser">USER</label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="roleAdmin"
+              value="ADMIN"
+              formControlName="role"
+            />
+            <label class="form-check-label" for="roleAdmin">ADMIN</label>
+          </div>
+        </div>
+
+        <div
+          *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched"
+          class="text-danger mt-1"
+        >
+          <small>Role is required.</small>
         </div>
       </div>
     </form>
