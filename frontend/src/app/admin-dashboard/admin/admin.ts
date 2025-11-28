@@ -75,6 +75,7 @@ export class Admin implements OnInit {
     this.loadUsers();
     this.userForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
+      role: ['USER', Validators.required],
     });
   }
 
@@ -148,8 +149,7 @@ export class Admin implements OnInit {
 
     const requestBody: UserRequest = {
       userName: this.userForm.value.username,
-      currentBalance: 0,
-      userRole: 'USER',
+      userRole: this.userForm.value.role,
     };
 
     this.userService.createUser(requestBody).subscribe({
@@ -199,7 +199,7 @@ export class Admin implements OnInit {
     this.editMode = true;
     this.editUserId = user.userId;
 
-    this.userForm.patchValue({ username: user.userName });
+    this.userForm.patchValue({ username: user.userName, role: user.userRole });
 
     const dialogRef = this.dialog.open(Dialog, {
       width: '400px',
@@ -222,7 +222,7 @@ export class Admin implements OnInit {
       userId: user.userId,
       userName: this.userForm.value.username,
       currentBalance: user.currentBalance,
-      userRole: user.userRole,
+      userRole: this.userForm.value.role,
     };
 
     this.userService.updateUser(updatedUser.userId, updatedUser).subscribe({
