@@ -1,0 +1,40 @@
+<h2 mat-dialog-title class="fw-bold mb-0">Transfer Money</h2>
+<div mat-dialog-content class="pt-3">
+  <form [formGroup]="transferForm">
+    <div class="mb-3">
+      <label for="fromUser" class="form-label fw-500">From User</label>
+      <input id="fromUser" type="text" class="form-control" formControlName="fromUser" readonly />
+    </div>
+
+    <div class="mb-3">
+      <label for="toUser" class="form-label fw-500">To User</label>
+      <select id="toUser" class="form-select" formControlName="toUser">
+        <option value="">-- Select user --</option>
+        <option *ngFor="let user of data.users" [value]="user.userName">{{ user.userName }}</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="amount" class="form-label fw-500">Amount</label>
+      <input id="amount" type="number" class="form-control" formControlName="amount" placeholder="Enter amount" />
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label fw-500 d-block mb-2">Transaction Type</label>
+      <div class="d-flex gap-3">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" id="debitRadio" formControlName="transactionType" value="debit" />
+          <label class="form-check-label" for="debitRadio">Debit</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" id="creditRadio" formControlName="transactionType" value="credit" />
+          <label class="form-check-label" for="creditRadio">Credit</label>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div mat-dialog-actions align="end" class="flex gap-2">
+  <button type="button" class="btn btn-light btn-sm fixed-btn" (click)="dialogRef.close(false)">Cancel</button>
+  <button type="button" class="btn btn-primary btn-sm fixed-btn" (click)="submit()" [disabled]="!transferForm.valid">Transfer</button>
+</div>
