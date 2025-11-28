@@ -1,5 +1,6 @@
 <div>
-  <input *ngIf="showFilter"
+  <input
+    *ngIf="showFilter"
     type="text"
     class="form-control mb-3 search-input"
     placeholder="Search"
@@ -10,7 +11,7 @@
     <table mat-table [dataSource]="dataSource" matSort class="table table-hover align-middle">
       <ng-container *ngFor="let col of displayedColumns" [matColumnDef]="col">
         <th mat-header-cell *matHeaderCellDef mat-sort-header class="fw-bold">
-          {{ col | titlecase }}
+          {{ columnNames[col] || col }}
         </th>
         <td mat-cell *matCellDef="let element">{{ element[col] }}</td>
       </ng-container>

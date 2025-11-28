@@ -13,9 +13,10 @@
       <div *ngIf="!loading">
         <app-table
           [data]="users"
-          [displayedColumns]="['userId', 'userName']"
+          [displayedColumns]="['userId', 'userName', 'userRole']"
           (edit)="onEditUser($event)"
           (delete)="confirmDelete($event)"
+          [columnNames]="tableColoumnNames"
         ></app-table>
       </div>
     </div>
@@ -35,6 +36,9 @@
           >
           <small *ngIf="userForm.get('username')?.errors?.['minlength']"
             >Minimum 3 characters required.</small
+          >
+          <small *ngIf="userForm.get('username')?.errors?.['pattern']">
+            Spaces are not allowed in username.</small
           >
         </div>
       </div>
