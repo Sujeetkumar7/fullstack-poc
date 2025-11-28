@@ -17,8 +17,14 @@
           >
         </div>
       </div>
-      <button type="submit" class="btn btn-primary w-100 mt-4" [disabled]="loginForm.invalid">
-        Login
+
+      <button
+        type="submit"
+        class="btn btn-primary w-100 mt-4"
+        [disabled]="loginForm.invalid || loading"
+      >
+        <span *ngIf="!loading">Login</span>
+        <app-spinner *ngIf="loading" [size]="20" color="white"></app-spinner>
       </button>
     </form>
   </div>

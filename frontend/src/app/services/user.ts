@@ -16,6 +16,10 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
+  getUserByUsername(username: string) {
+    return this.http.get<any>(`${this.apiUrl + API_ENDPOINTS.users}/${username}`);
+  }
+
   getAllUsers(): Observable<ApiUser[]> {
     return this.http.get<ApiUser[]>(this.apiUrl + API_ENDPOINTS.users + API_ENDPOINTS.getAllUsers);
   }
