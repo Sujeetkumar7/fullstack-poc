@@ -1,0 +1,11 @@
+export const ENV = {
+  production: false,
+  apiUrl: 'http://localhost:8080',
+};
+
+export const API_ENDPOINTS = {
+  users: '/users',
+  getAllUsers: '/allUsers',
+  createUser: '/createUser',
+  transaction: '/transactions',
+};
