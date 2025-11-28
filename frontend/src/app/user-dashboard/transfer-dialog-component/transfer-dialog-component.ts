@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { User } from '../../user-service';
+import { UserResponse } from '../../services/user-service/user'
+
 
 @Component({
   selector: 'app-transfer-dialog-component',
@@ -18,7 +19,7 @@ export class TransferDialogComponent {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<TransferDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { users: User[], fromUser: string}
+    @Inject(MAT_DIALOG_DATA) public data: { users: UserResponse[], fromUser: string}
   ) {
     this.transferForm = this.fb.group({
       fromUser: [data.fromUser, Validators.required],
