@@ -63,6 +63,12 @@ export class Admin implements OnInit {
 
   loading = false;
 
+  tableColoumnNames: { [key: string]: string } = {
+    userId: 'User ID',
+    userName: 'User Name',
+    userRole: 'User Role',
+  };
+
   constructor(
     private dialog: MatDialog,
     private fb: FormBuilder,
@@ -74,7 +80,7 @@ export class Admin implements OnInit {
   ngOnInit() {
     this.loadUsers();
     this.userForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
+      username: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^\S+$/)]],
       role: ['USER', Validators.required],
     });
   }
