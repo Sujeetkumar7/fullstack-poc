@@ -1,24 +1,30 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { Header } from '../../common/header/header';
+import { RouterOutlet, Router } from '@angular/router';
 
+import { Header } from '../../common/header/header';
+import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
   selector: 'app-user-layout',
   standalone: true,
-  imports: [CommonModule, Header],
+  imports: [CommonModule, Header, RouterOutlet],
   templateUrl: './user-layout.html',
   styleUrls: ['./user-layout.scss'],
 })
-export class UserLayout {
+export class UserLayout implements OnInit {
   title = 'User Dashboard';
-  username = 'user';
+  username = '';
 
+  constructor(private router: Router, private authService: AuthService) {}
 
-  constructor(private router: Router) {}
+  ngOnInit(): void {
+    const user = this.authService.getUserDetails();
+    this.username = user?.username ?? '';
+  }
 
   logout() {
+    this.authService.logout();
     this.router.navigate(['/']);
   }
 }

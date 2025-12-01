@@ -1,49 +1,42 @@
-<app-user-layout>
-  <div class="container-fluid p-4">
-    <!-- Search Section -->
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">User Search</h5>
-      </div>
-      <div class="card-body">
-        <div class="d-flex align-items-end gap-3">
-          <div style="flex: 0 0 280px;">
-            <label for="userNameInput" class="form-label fw-500">Username</label>
-            <input id="userNameInput" type="text" class="form-control w-100" [(ngModel)]="userName" (ngModelChange)="onUserNameChange($event)" (keyup.enter)="searchUserHistory()" placeholder="Enter username" />
-          </div>
-          <button type="button" class="btn btn-primary btn-sm" (click)="searchUserHistory()" [disabled]="loadingHistory || !(userName && userName.trim().length >= 3)">
-            {{ loadingHistory ? 'Loading...' : 'Load Details' }}
-          </button>
-        </div>
-      </div>
-    </div>
+<div class="container-fluid p-4">
 
-    <!-- Balance Section -->
-    <div class="card mb-4 shadow-sm" *ngIf="balance">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Account Balance</h5>
-      </div>
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <h3 class="mb-0">Balance: <strong>{{ balance }}</strong></h3>
-          <button type="button" class="btn btn-secondary btn-sm" (click)="openTransfer()">Transfer Money</button>
-        </div>
-      </div>
+  <!-- Balance Section -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Account Balance</h5>
     </div>
-
-    <!-- Transaction History Section -->
-    <div class="card shadow-sm" *ngIf="searchAttempted">
-      <div class="card-header">
-        <h5 class="mb-0">Transaction History</h5>
-      </div>
-      <div class="card-body">
-        <app-table *ngIf="transacations.length" [data]="transacations" [displayedColumns]="displayedColumns" [showFilter]="false" [showActions]="false"></app-table>
-        <div *ngIf="!transacations.length && !loadingHistory" class="alert alert-info mb-0">
-          <strong>No data to display</strong>
-          <p class="mb-0 mt-1">No transactions found for this user.</p>
-        </div>
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Balance: <strong>{{ balance }}</strong></h3>
+        <button type="button"
+                class="btn btn-secondary btn-sm"
+                (click)="openTransfer()"
+                [disabled]="balance < 0">
+          Transfer Money
+        </button>
       </div>
     </div>
   </div>
-</app-user-layout>
 
+  <!-- Transaction History Section -->
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h5 class="mb-0">Transaction History</h5>
+    </div>
+    <div class="card-body">
+
+    <!-- Spinner while loading -->
+    <app-spinner *ngIf="loading" [size]="23" color="btn-primary"></app-spinner>
+    <!-- Table when loaded -->
+      <app-table *ngIf="!loading && transactions.length"
+           [data]="transactions"
+           [displayedColumns]="displayedColumns"
+           [showFilter]="false"
+           [showActions]="false"></app-table>
+      <div *ngIf="!loading && !transactions.length" class="alert alert-info mb-0">
+        <strong>No data to display</strong>
+        <p class="mb-0 mt-1">No transactions found for this user.</p>
+      </div>
+    </div>
+  </div>
+</div>

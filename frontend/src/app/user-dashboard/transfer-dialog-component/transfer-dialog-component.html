@@ -3,12 +3,12 @@
   <form [formGroup]="transferForm">
     <div class="mb-3">
       <label for="fromUser" class="form-label fw-500">From User</label>
-      <input id="fromUser" type="text" class="form-control" formControlName="fromUser" readonly />
+      <input id="fromUser" type="text" class="form-control" formControlName="userId" readonly />
     </div>
 
     <div class="mb-3">
       <label for="toUser" class="form-label fw-500">To User</label>
-      <select id="toUser" class="form-select" formControlName="toUser">
+      <select id="toUser" class="form-select" formControlName="username">
         <option value="">-- Select user --</option>
         <option *ngFor="let user of data.users" [value]="user.username">{{ user.username }}</option>
       </select>
