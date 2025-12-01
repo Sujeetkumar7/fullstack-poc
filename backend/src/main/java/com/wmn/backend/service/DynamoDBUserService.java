@@ -59,25 +59,32 @@ public class DynamoDBUserService {
     }
 
 
-    //Get User
+    //Get User based on Username
+    public Optional<UserResponseDto> getUser(String username) {
 
-    public Optional<UserResponseDto> getUser(String userId) {
-        Map<String, AttributeValue> key = Map.of("user_id", AttributeValue.builder().s(userId).build());
-
-        GetItemRequest request = GetItemRequest.builder()
+        // Scan the table for the matching username
+        ScanRequest request = ScanRequest.builder()
                 .tableName(tableName)
-                .key(key)
-                .consistentRead(true)
+                .filterExpression("username = :u")
+                .expressionAttributeValues(Map.of(
+                        ":u", AttributeValue.builder().s(username).build()
+                ))
                 .build();
 
-        Map<String, AttributeValue> item = dynamoDbClient.getItem(request).item();
-        if (item == null || item.isEmpty()) return Optional.empty();
+        ScanResponse response = dynamoDbClient.scan(request);
 
-        // If item has a status attribute and it's "inactive", filter it out.
+        // No match found
+        if (response.count() == 0) {
+            return Optional.empty();
+        }
+
+        // Get the first matched item
+        Map<String, AttributeValue> item = response.items().get(0);
+
+        // Handle soft-delete or inactive status
         AttributeValue statusAttr = item.get("status");
         if (statusAttr != null && statusAttr.s() != null) {
-            String status = statusAttr.s();
-            if ("inactive".equalsIgnoreCase(status)) {
+            if ("inactive".equalsIgnoreCase(statusAttr.s())) {
                 throw new RuntimeException("User not found");
             }
         }
@@ -135,12 +142,33 @@ public class DynamoDBUserService {
     }
 
     //LIST USERS
-    public List<UserResponseDto> listUsers() {
-        ScanResponse scan = dynamoDbClient.scan(ScanRequest.builder().tableName(tableName).build());
+    public List<UserResponseDto> listUsers(String status) {
 
-        return scan.items().stream().map(this::mapItemToResponse).collect(Collectors.toList());
+        // Scan entire table
+        ScanResponse scan = dynamoDbClient.scan(
+                ScanRequest.builder().tableName(tableName).build()
+        );
+
+        boolean filterInactive = status != null && status.equalsIgnoreCase("inactive");
+
+        return scan.items().stream()
+                .filter(item -> {
+
+                    AttributeValue statusAttr = item.get("status");
+                    String itemStatus = statusAttr != null && statusAttr.s() != null
+                            ? statusAttr.s()
+                            : null;
+
+                    // If filtering inactive, skip users whose status is inactive
+                    if (filterInactive && "inactive".equalsIgnoreCase(itemStatus)) {
+                        return false;
+                    }
+
+                    return true;
+                })
+                .map(this::mapItemToResponse)
+                .collect(Collectors.toList());
     }
-
 
     private UserResponseDto mapItemToResponse(Map<String, AttributeValue> item) {
         String userId = Optional.ofNullable(item.get("user_id")).map(AttributeValue::s).orElse(null);
