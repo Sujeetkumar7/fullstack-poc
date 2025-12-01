@@ -66,7 +66,8 @@ export class Login {
             return;
           }
           this.authService.login({
-            username: response.userName,
+            userId: response.userId,
+            username: response.username,
             userRole: response.userRole,
           });
           this.router.navigate([response.userRole === 'ADMIN' ? '/admin' : '/user']);
@@ -79,11 +80,6 @@ export class Login {
             horizontalPosition: 'end',
             verticalPosition: 'top',
           });
-          this.authService.login({
-            username: this.loginForm.value.username,
-            userRole: 'ADMIN',
-          });
-          // this.router.navigate(['/admin']);
         },
       });
   }
