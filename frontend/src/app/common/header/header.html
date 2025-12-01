@@ -2,7 +2,7 @@
   class="navbar navbar-dark bg-primary px-3 d-flex justify-content-between align-items-center fixed-top"
 >
   <div class="d-flex align-items-center">
-    <span class="d-md-none me-2 text-white cursor-pointer" (click)="onToggleSidebar()">
+    <span *ngIf="role !== 'USER'" class="d-md-none me-2 text-white cursor-pointer" (click)="onToggleSidebar()">
       <i class="bi bi-list"></i>
     </span>
     <span class="navbar-brand mb-0 h1">{{ title }}</span>

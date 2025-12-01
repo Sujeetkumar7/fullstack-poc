@@ -18,6 +18,9 @@ export class Analytics implements OnDestroy {
   pollSubscription!: Subscription;
 
   csvContent: string | null = null;
+  tableData: string[][] = [];
+  headers: string[] = [];
+
   isReportReady = false;
 
   constructor(private analyticsService: AnalyticsService, private cdr: ChangeDetectorRef) {}
@@ -62,6 +65,7 @@ export class Analytics implements OnDestroy {
         if (!csv) return;
 
         this.csvContent = csv;
+        this.parseCsv(csv);
         this.isReportReady = true;
         this.isRunning = false;
         this.statusMessage = 'Analytics completed. Report is ready.';
@@ -69,6 +73,16 @@ export class Analytics implements OnDestroy {
 
         this.pollSubscription.unsubscribe();
       });
+  }
+
+  parseCsv(csv: string) {
+    const rows = csv
+      .trim()
+      .split('\n')
+      .map((r) => r.split(','));
+
+    this.headers = rows[0];
+    this.tableData = rows.slice(1);
   }
 
   downloadReport() {

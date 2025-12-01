@@ -15,6 +15,7 @@ export class Header {
   @Output() toggleSidebar = new EventEmitter<void>();
   @Output() logout = new EventEmitter<void>();
 
+  role: string = '';
   menuOpen = false;
 
   constructor(private authService: AuthService, private eRef: ElementRef) {}
@@ -25,6 +26,7 @@ export class Header {
     if (userDetails) {
       const parsed = JSON.parse(userDetails);
       this.username = parsed.username || 'User';
+      this.role = parsed.userRole || '';
     }
   }
 
