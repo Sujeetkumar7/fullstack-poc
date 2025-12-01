@@ -41,23 +41,47 @@ public class DynamoDBUserService {
         return base + "-" + (maxSuffix + 1);
     }
 
-    //Create User
+    //Standardization
+    private String normalizeRole(String role) {
+        if (role == null) return null;
 
+        role = role.trim().toUpperCase();
+
+        if (role.equals("USER") || role.equals("ADMIN")) {
+            return role;
+        }
+
+        // Default fallback
+        return "USER";
+    }
+
+    //Create User
     public UserResponseDto createUser(UserDto dto) {
         String newUserId = generateUserId();
         String finalUsername = generateFinalUsername(dto.getUsername());
+
+        // Validate and assign role
+        String role = normalizeRole(dto.getUserRole());
+        if (role == null) {
+            role = "USER";
+        }
 
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("user_id", AttributeValue.fromS(newUserId));
         item.put("username", AttributeValue.fromS(finalUsername));
         item.put("current_balance", AttributeValue.fromN("0.0"));
-        item.put("user_role", AttributeValue.fromS("USER"));
+        item.put("user_role", AttributeValue.fromS(role));
         item.put("status", AttributeValue.fromS("ACTIVE"));
-        dynamoDbClient.putItem(PutItemRequest.builder().tableName(tableName).item(item).build());
 
-        return new UserResponseDto(newUserId, finalUsername, 0.0, "USER");
+        dynamoDbClient.putItem(
+                PutItemRequest.builder()
+                        .tableName(tableName)
+                        .item(item)
+                        .build()
+        );
+
+        return new UserResponseDto(newUserId, finalUsername, 0.0, role);
     }
-
 
     //Get User based on Username
     public Optional<UserResponseDto> getUser(String username) {
@@ -92,7 +116,7 @@ public class DynamoDBUserService {
         return Optional.of(mapItemToResponse(item));
     }
 
-    // UPDATE
+    //Update
     public UserResponseDto updateUser(String userId, UpdateUserDto dto) {
 
         Map<String, String> names = new HashMap<>();
@@ -100,10 +124,10 @@ public class DynamoDBUserService {
         List<String> updates = new ArrayList<>();
 
         if (dto.getUsername() != null) {
-            String newFinalUsername = generateFinalUsername(dto.getUsername());
+            // DO NOT auto-generate username on update
             names.put("#username", "username");
             updates.add("#username = :username");
-            values.put(":username", AttributeValue.fromS(newFinalUsername));
+            values.put(":username", AttributeValue.fromS(dto.getUsername()));
         }
 
         if (dto.getCurrentBalance() != null) {
@@ -113,9 +137,10 @@ public class DynamoDBUserService {
         }
 
         if (dto.getUserRole() != null) {
+            String normalizedRole = normalizeRole(dto.getUserRole());
             names.put("#user_role", "user_role");
             updates.add("#user_role = :user_role");
-            values.put(":user_role", AttributeValue.fromS(dto.getUserRole()));
+            values.put(":user_role", AttributeValue.fromS(normalizedRole));
         }
 
         if (updates.isEmpty()) {
@@ -141,30 +166,19 @@ public class DynamoDBUserService {
         return response;
     }
 
-    //LIST USERS
+    //Get all users
     public List<UserResponseDto> listUsers(String status) {
 
-        // Scan entire table
         ScanResponse scan = dynamoDbClient.scan(
                 ScanRequest.builder().tableName(tableName).build()
         );
 
-        boolean filterInactive = status != null && status.equalsIgnoreCase("inactive");
-
         return scan.items().stream()
                 .filter(item -> {
+                    String itemStatus = item.containsKey("status") ? item.get("status").s() : null;
 
-                    AttributeValue statusAttr = item.get("status");
-                    String itemStatus = statusAttr != null && statusAttr.s() != null
-                            ? statusAttr.s()
-                            : null;
-
-                    // If filtering inactive, skip users whose status is inactive
-                    if (filterInactive && "inactive".equalsIgnoreCase(itemStatus)) {
-                        return false;
-                    }
-
-                    return true;
+                    // ❗ Always skip inactive users
+                    return !("inactive".equalsIgnoreCase(itemStatus));
                 })
                 .map(this::mapItemToResponse)
                 .collect(Collectors.toList());
@@ -182,10 +196,6 @@ public class DynamoDBUserService {
         return new UserResponseDto(userId, username, currentBalance, userRole);
     }
 
-    /**
-     * Update the user's current balance attribute in DynamoDB.
-     *
-     */
     public void updateUserBalance(String userId, double newBalance) {
         Map<String, AttributeValue> key = Collections.singletonMap("userId", AttributeValue.builder().s(userId).build());
         Map<String, AttributeValue> exprVals = Collections.singletonMap(":current_balance", AttributeValue.builder().n(Double.toString(newBalance)).build());
