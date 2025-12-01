@@ -6,11 +6,29 @@
         {{ isRunning ? 'Running...' : 'Run Analytics' }}
       </button>
     </div>
+
     <div class="card-body">
       <p *ngIf="statusMessage">{{ statusMessage }}</p>
-      <button *ngIf="isReportReady" class="btn btn-outline-primary btn-sm" (click)="downloadReport()">
+
+      <button *ngIf="isReportReady" class="btn btn-outline-primary btn-sm mb-3" (click)="downloadReport()">
         Download Report
       </button>
+
+      <div *ngIf="isReportReady && tableData.length" class="table-responsive">
+        <table class="table table-bordered table-sm">
+          <thead class="table-light">
+            <tr>
+              <th *ngFor="let h of headers">{{ h }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of tableData">
+              <td *ngFor="let col of row">{{ col }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
 </app-admin-layout>
