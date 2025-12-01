@@ -1,101 +1,95 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { TransactionService } from '../../services/transaction-service/transaction-service';
-
 import { MatTableModule } from '@angular/material/table';
+
+import { TransactionService } from '../../services/transaction-service/transaction-service';
+import { UserService, UserResponse } from '../../services/user-service/user';
+import { AuthService } from '../../services/auth-service/auth-service';
+
 import { TransferDialogComponent } from '../transfer-dialog-component/transfer-dialog-component';
-import { UserLayout } from '../user-layout/user-layout';
 import { Table } from '../../common/table/table';
-import { UserService } from '../../services/user-service/user';
+import { Spinner } from '../../common/spinner/spinner';
+import { finalize, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-component',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatTableModule, MatDialogModule, UserLayout, Table],
+  imports: [CommonModule, MatTableModule, MatDialogModule, Table, Spinner],
   templateUrl: './user-component.html',
   styleUrls: ['./user-component.scss'],
 })
 export class UserComponent implements OnInit {
-  userName : string = '';
-  balance : number = 0;
-  users: any[] = [];
-  transacations: any[] = [];
-  loadingHistory = false;
-  searchAttempted = false;
+  userName: string = '';
+  balance: number = 0;
+  transactions: any[] = [];
+  loading = false; 
 
-  displayedColumns = ['transactionId', 'transactionType', 'amount','timestamp', 'username'];
+  displayedColumns = ['transactionId', 'transactionType', 'amount', 'timestamp', 'username'];
 
-  constructor(private transactionService: TransactionService, private dialog: MatDialog, private userService: UserService, private ngZone: NgZone){}
+  constructor(
+    private transactionService: TransactionService,
+    private userService: UserService,
+    private authService: AuthService,
+    private dialog: MatDialog,
+  ) {}
+
   ngOnInit(): void {
-   this.loadUsers();
+    const user = this.authService.getUserDetails();
+    this.userName = user?.username ?? '';
+    this.balance = user?.currentBalance ?? 0;
+    if (this.userName) {
+      this.loadUserDetails();
+    }
   }
 
-  loadUsers(){
-    this.userService.getAllUsers().subscribe(res => { this.users = res});
-  }
-  
-  searchUserHistory(){
-    const name = this.userName?.trim();
-    if(!name || name.length < 3) return;
-    this.loadingHistory = true;
-    this.searchAttempted = true;
-    this.transactionService.getTransactionHistory(name).subscribe({
-      next: (res: any[]) => {
-        this.ngZone.run(() => {
-          // sort by timestamp desc if timestamp present
-          try{
-            this.transacations = Array.isArray(res) ? res.slice().sort((a,b) => {
-              const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-              const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-              return tb - ta;
-            }) : [];
-          }catch(e){
-            this.transacations = res || [];
-          }
 
-          const user = this.users.find(u => u.userName === name || u.username === name);
-          this.balance = user ? (user.currentbalance ?? user.currentBalance ?? 0) : 0;
-          this.loadingHistory = false;
-        });
+loadUserDetails() {
+  this.loading = true; // show spinner
+  this.userService.getUserByUsername(this.userName)
+    .pipe(take(1))
+    .subscribe({
+      next: (user: UserResponse) => {
+        this.balance = user?.currentBalance ?? 0;
       },
-      error: (err) => {
-        this.ngZone.run(() => {
-          console.error('Failed to load transaction history', err);
-          this.transacations = [];
-          this.loadingHistory = false;
-        });
-      }
-    })
-  }
-
-  openTransfer(){
-    const dialogRef = this.dialog.open(TransferDialogComponent, {
-      width: '400px',
-      data: { users: this.users, fromUser: this.userName }
-    });    
-
-    dialogRef.afterClosed().subscribe(result => {
-      
-      // You can handle any actions after the dialog is closed here
-      if(result){
-        this.transactionService.saveTransaction(result).subscribe(()=>{
-          console.log('Transaction successful');
-          this.searchUserHistory();
-        })
+      error: () => {
+        this.balance = 0;
       }
     });
-  }
 
-  onUserNameChange(value: string) {
-    this.userName = value;
-    const name = value?.trim();
-    if (!name || name.length < 3) {
-      this.transacations = [];
-      this.balance = 0;
-      this.loadingHistory = false;
-      this.searchAttempted = false;
-    }
+  // Fetch transaction history
+  this.transactionService.getTransactionHistory(this.userName)
+    .pipe(
+      take(1),                
+      finalize(() => {
+        this.loading = false;
+      })
+    )
+    .subscribe({
+      next: (res: any[]) => {
+        this.transactions = res ?? [];
+      },
+      error: () => {
+        this.transactions = [];
+      }
+    });
+}
+
+
+  openTransfer() {
+    this.userService.getAllUsers().subscribe(users => {
+      const dialogRef = this.dialog.open(TransferDialogComponent, {
+        width: '400px',
+        data: { users, fromUser: this.userName }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.transactionService.saveTransaction(result).subscribe(() => {
+            this.loadUserDetails();
+          });
+        }
+      });
+    });
   }
 }
