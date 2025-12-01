@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
@@ -59,7 +59,7 @@ public class UserController {
         return ResponseEntity.ok(userService.deleteUser(userId));
     }
 
-    @GetMapping("/users")
+    @GetMapping
     public ResponseEntity<List<UserResponseDto>> listUsers() {
         return ResponseEntity.ok(userService.listUsers());
     }
