@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
@@ -45,7 +45,8 @@ export class TransactionService {
 
   getTransactionHistory(userId:string): Observable<any>{
     if(!this.useMock){
-      return this.http.get<any>(`${this.baseUrl}/transaction/history/${userId}`);
+       const params = new HttpParams().set('userId', userId);
+      return this.http.get<any>(`${this.baseUrl}/transaction/history`, { params })
     }
 
     const list = this.mockTransactions.filter(t => t.username === userId || t.username === (userId));

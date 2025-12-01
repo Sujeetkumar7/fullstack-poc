@@ -22,8 +22,8 @@ export class TransferDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: { users: UserResponse[], fromUser: string}
   ) {
     this.transferForm = this.fb.group({
-      fromUser: [data.fromUser, Validators.required],
-      toUser: ['', Validators.required],
+      userId: [data.fromUser, Validators.required],
+      username: ['', Validators.required],
       amount: ['', Validators.required],
       transactionType: ['debit', Validators.required]
     });

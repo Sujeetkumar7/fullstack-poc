@@ -7,6 +7,7 @@ export interface UserDetails {
   userId: string;
   username: string;
   userRole: string;
+  currentBalance?:number;
 }
 
 @Injectable({ providedIn: 'root' })
