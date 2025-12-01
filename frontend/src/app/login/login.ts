@@ -83,7 +83,7 @@ export class Login {
             username: this.loginForm.value.username,
             userRole: 'ADMIN',
           });
-          this.router.navigate(['/admin']);
+          // this.router.navigate(['/admin']);
         },
       });
   }
