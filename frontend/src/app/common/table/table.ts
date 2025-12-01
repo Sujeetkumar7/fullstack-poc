@@ -46,7 +46,7 @@ export class Table implements AfterViewInit {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  pageSize = 5;
+  pageSize = 10;
   currentPage = 1;
   totalPages = 0;
   pages: number[] = [];

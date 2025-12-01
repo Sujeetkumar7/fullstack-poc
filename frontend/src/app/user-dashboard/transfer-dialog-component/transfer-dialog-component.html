@@ -10,7 +10,7 @@
       <label for="toUser" class="form-label fw-500">To User</label>
       <select id="toUser" class="form-select" formControlName="toUser">
         <option value="">-- Select user --</option>
-        <option *ngFor="let user of data.users" [value]="user.userName">{{ user.userName }}</option>
+        <option *ngFor="let user of data.users" [value]="user.username">{{ user.username }}</option>
       </select>
     </div>
 

@@ -24,7 +24,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 interface User {
   currentBalance: number;
   userId: string;
-  userName: string;
+  username: string;
   userRole: string;
 }
 @Component({
@@ -65,7 +65,7 @@ export class Admin implements OnInit {
 
   tableColoumnNames: { [key: string]: string } = {
     userId: 'User ID',
-    userName: 'User Name',
+    username: 'User Name',
     userRole: 'User Role',
   };
 
@@ -142,7 +142,7 @@ export class Admin implements OnInit {
     this.loading = true;
 
     const requestBody: UserRequest = {
-      userName: this.userForm.value.username,
+      username: this.userForm.value.username,
       userRole: this.userForm.value.role,
     };
 
@@ -193,7 +193,7 @@ export class Admin implements OnInit {
     this.editMode = true;
     this.editUserId = user.userId;
 
-    this.userForm.patchValue({ username: user.userName, role: user.userRole });
+    this.userForm.patchValue({ username: user.username, role: user.userRole });
 
     const dialogRef = this.dialog.open(Dialog, {
       width: '400px',
@@ -214,7 +214,7 @@ export class Admin implements OnInit {
   handleEditUser(dialogRef: any, user: User) {
     const updatedUser: UserResponse = {
       userId: user.userId,
-      userName: this.userForm.value.username,
+      username: this.userForm.value.username,
       currentBalance: user.currentBalance,
       userRole: this.userForm.value.role,
     };
