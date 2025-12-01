@@ -6,12 +6,8 @@ import com.wmn.backend.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -20,9 +16,11 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.utils.IoUtils;
 
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,6 +29,9 @@ import java.util.stream.Collectors;
 public class DynamoDBTransactionService {
     private final DynamoDbClient dynamoDbClient;
     private final String tableName = "transaction";
+    private static final String BUCKET_NAME = "wmnanalytics";
+    private static final String FOLDER_PREFIX = "analytics-output/";
+    private static final Region REGION = Region.AP_SOUTH_2;
 
     @Autowired
     DynamoDBUserService userService;
@@ -143,33 +144,54 @@ log.info("Transaction ID: " + t.getTransactionId());
         return t;
     }
 
-    public ResponseEntity<ByteArrayResource> downloadAnalyticsReport() {
-        String bucket = "wmnanalytics";
-        String key = "analytics-output/analytics_report.csv";
+    public byte[] downloadAnalyticsReport() {
+        String latestObjectKey = "";
         try {
             S3Client s3Client = S3Client.builder()
                     .region(Region.AP_SOUTH_2)
                     .build();
-            GetObjectRequest req = GetObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(key)
-                    .build();
-            byte[] data = s3Client.getObject(req, ResponseTransformer.toBytes()).asByteArray();
-            ByteArrayResource resource = new ByteArrayResource(data);
-            String filename = Paths.get(key).getFileName().toString();
+            List<S3Object> objectSummaries = CommonUtils.listFilesInFolder(s3Client, BUCKET_NAME, FOLDER_PREFIX);
+            if (objectSummaries.isEmpty()) {
+                log.info("No files found in the specified S3 folder.");
+                throw new Exception("No files found in the specified S3 folder.");
+            }
 
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType("text/csv"))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                    .contentLength(data.length)
-                    .body(resource);
+            Optional<S3Object> latestObjectOpt = objectSummaries.stream()
+                    .filter(obj -> obj.size() > 0)
+                    .max(Comparator.comparing(S3Object::lastModified));
+
+
+            if (latestObjectOpt.isPresent()) {
+                S3Object latestObject = latestObjectOpt.get();
+                 latestObjectKey = latestObjectOpt.map(S3Object::key).orElse(null);
+                log.info("Latest file identified: " + latestObjectKey + " (Last Modified: " + latestObject.lastModified() + ")");
+                 String fileName = latestObjectKey.substring(latestObjectKey.lastIndexOf('/') + 1);
+                GetObjectRequest req = GetObjectRequest.builder()
+                        .bucket(BUCKET_NAME)
+                        .key(latestObjectKey)
+                        .build();
+                ResponseInputStream<GetObjectResponse> s3Stream = s3Client.getObject(req);
+                byte[] data = IoUtils.toByteArray(s3Stream);
+                log.info("Download complete. File size: " + data.length + " bytes." + " File name "+ fileName );
+                return data;
+
+            } else {
+                log.info("No downloadable files found in the folder.");
+            }
+
+
         } catch (S3Exception e) {
-            log.warn("S3 object not found or access denied: {}/{}", bucket, key, e);
-            return ResponseEntity.notFound().build();
+            log.warn("S3 object not found or access denied: {}/{}", BUCKET_NAME, latestObjectKey, e);
+            throw new RuntimeException("S3 object not found or access denied");
         } catch (Exception e) {
-            log.error("Error retrieving S3 object {}/{}", bucket, key, e);
-            return ResponseEntity.status(500).build();
+            log.error("Error retrieving S3 object {}/{}", BUCKET_NAME, latestObjectKey, e);
+            throw new RuntimeException("Error retrieving S3 object");
         }
+        return null;
     }
+
+
+
+
 
 }

@@ -1,7 +1,13 @@
 package com.wmn.backend.utils;
 
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.S3Object;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommonUtils {
 
@@ -14,5 +20,17 @@ public class CommonUtils {
         String formattedNow = now.format(formatter);
 
         return formattedNow;
+    }
+
+    public static List<S3Object> listFilesInFolder(S3Client s3Client, String bucketName, String prefix) {
+        ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
+                .bucket(bucketName)
+                .prefix(prefix)
+                .build();
+
+        return s3Client.listObjectsV2Paginator(listRequest)
+                .stream()
+                .flatMap(response -> response.contents().stream())
+                .collect(Collectors.toList());
     }
 }
