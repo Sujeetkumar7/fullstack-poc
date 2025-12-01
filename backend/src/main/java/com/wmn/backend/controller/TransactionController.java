@@ -8,20 +8,20 @@ package com.wmn.backend.controller;
 import com.wmn.backend.model.TransactionDto;
 import com.wmn.backend.service.DynamoDBTransactionService;
 import com.wmn.backend.service.LambdaService;
-import com.wmn.backend.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/transaction")
 @Slf4j
+@CrossOrigin
 public class TransactionController {
     @Autowired
     private DynamoDBTransactionService transactionService;
@@ -33,10 +33,22 @@ public class TransactionController {
         String response = lambdaService.invokeLambda();
         return ResponseEntity.ok(response);
     }
+    // GET /transaction/download
+    @GetMapping("/download")
+    public ResponseEntity<byte[]> downloadAnalyticsReport() throws IOException {
+        log.info("Download started.");
+        byte[] s3StreamOpt = transactionService.downloadAnalyticsReport();
+        if (s3StreamOpt.length>0) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.parse("attachment; filename=Analytical_Report.csv"));
+            headers.setContentLength(s3StreamOpt.length);
+            log.info("Download Ended.");
+            return new ResponseEntity<>(s3StreamOpt, headers, HttpStatus.OK);
 
-    @GetMapping("download")
-    public ResponseEntity<?> downloadAnalyticsReport() {
-        return ResponseEntity.ok(transactionService.downloadAnalyticsReport());
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // GET /transaction/history/{user_id}
