@@ -22,6 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/transaction")
 @Slf4j
+@CrossOrigin
 public class TransactionController {
     @Autowired
     private DynamoDBTransactionService transactionService;
