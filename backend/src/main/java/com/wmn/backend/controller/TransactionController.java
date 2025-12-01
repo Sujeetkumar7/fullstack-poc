@@ -30,28 +30,33 @@ public class TransactionController {
 
     @GetMapping("/analytics")
     public ResponseEntity<String> triggerAnalysis() {
+
         String response = lambdaService.invokeLambda();
         return ResponseEntity.ok(response);
     }
-    // GET /transaction/download
+
     @GetMapping("/download")
     public ResponseEntity<byte[]> downloadAnalyticsReport() throws IOException {
         log.info("Download started.");
-        byte[] s3StreamOpt = transactionService.downloadAnalyticsReport();
-        if (s3StreamOpt.length>0) {
+        byte[] fileData = transactionService.downloadAnalyticsReport();
+
+        if (fileData != null && fileData.length > 0) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentDisposition(ContentDisposition.parse("attachment; filename=Analytical_Report.csv"));
-            headers.setContentLength(s3StreamOpt.length);
-            log.info("Download Ended.");
-            return new ResponseEntity<>(s3StreamOpt, headers, HttpStatus.OK);
+            headers.setContentLength(fileData.length);
 
+            log.info("Download Ended.");
+            return new ResponseEntity<>(fileData, headers, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            log.info("No file found, returning 404.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("X-Error-Message", "No file found in the specified S3 folder")
+                    .build();
         }
     }
 
-    // GET /transaction/history/{user_id}
+        // GET /transaction/history/{user_id}
     @GetMapping("/history")
     public ResponseEntity<List<TransactionDto>> listTransactions(@RequestParam String userId) {
         List<TransactionDto> list = transactionService.listTransactions(userId);

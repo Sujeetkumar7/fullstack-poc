@@ -40,7 +40,7 @@ export class Analytics implements OnDestroy {
   }
 
   startPollingForDownload() {
-    this.pollSubscription = interval(30000)
+    this.pollSubscription = interval(60000)
       .pipe(switchMap(() => this.analyticsService.getDownloadUrl()))
       .subscribe({
         next: (response) => {

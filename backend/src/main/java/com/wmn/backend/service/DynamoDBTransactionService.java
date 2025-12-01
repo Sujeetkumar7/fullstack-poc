@@ -150,35 +150,34 @@ log.info("Transaction ID: " + t.getTransactionId());
             S3Client s3Client = S3Client.builder()
                     .region(Region.AP_SOUTH_2)
                     .build();
+
             List<S3Object> objectSummaries = CommonUtils.listFilesInFolder(s3Client, BUCKET_NAME, FOLDER_PREFIX);
             if (objectSummaries.isEmpty()) {
                 log.info("No files found in the specified S3 folder.");
-                throw new Exception("No files found in the specified S3 folder.");
+                return null; // No file found
             }
 
             Optional<S3Object> latestObjectOpt = objectSummaries.stream()
                     .filter(obj -> obj.size() > 0)
                     .max(Comparator.comparing(S3Object::lastModified));
 
-
             if (latestObjectOpt.isPresent()) {
                 S3Object latestObject = latestObjectOpt.get();
-                 latestObjectKey = latestObjectOpt.map(S3Object::key).orElse(null);
-                log.info("Latest file identified: " + latestObjectKey + " (Last Modified: " + latestObject.lastModified() + ")");
-                 String fileName = latestObjectKey.substring(latestObjectKey.lastIndexOf('/') + 1);
+                latestObjectKey = latestObject.key();
+
+                log.info("Latest file identified: {} (Last Modified: {})", latestObjectKey, latestObject.lastModified());
+
                 GetObjectRequest req = GetObjectRequest.builder()
                         .bucket(BUCKET_NAME)
                         .key(latestObjectKey)
                         .build();
+
                 ResponseInputStream<GetObjectResponse> s3Stream = s3Client.getObject(req);
                 byte[] data = IoUtils.toByteArray(s3Stream);
-                log.info("Download complete. File size: " + data.length + " bytes." + " File name "+ fileName );
+
+                log.info("Download complete. File size: {} bytes. File name {}", data.length, latestObjectKey);
                 return data;
-
-            } else {
-                log.info("No downloadable files found in the folder.");
             }
-
 
         } catch (S3Exception e) {
             log.warn("S3 object not found or access denied: {}/{}", BUCKET_NAME, latestObjectKey, e);
