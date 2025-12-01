@@ -37,9 +37,9 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserResponseDto> read(@PathVariable String userId) {
-        return userService.getUser(userId).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    @GetMapping("/{username}")
+    public ResponseEntity<UserResponseDto> read(@PathVariable String username) {
+        return userService.getUser(username).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{userId}")
@@ -60,7 +60,9 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponseDto>> listUsers() {
-        return ResponseEntity.ok(userService.listUsers());
+    public ResponseEntity<List<UserResponseDto>> listUsers(
+            @RequestParam(required = false) String status
+    ) {
+        return ResponseEntity.ok(userService.listUsers(status));
     }
 }
