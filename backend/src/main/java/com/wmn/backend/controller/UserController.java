@@ -1,4 +1,3 @@
-
 package com.wmn.backend.controller;
 
 import com.wmn.backend.dto.UpdateUserDto;
@@ -6,15 +5,20 @@ import com.wmn.backend.dto.UserDto;
 import com.wmn.backend.dto.UserResponseDto;
 import com.wmn.backend.service.DynamoDBUserService;
 import jakarta.validation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
+    @Autowired
     private final DynamoDBUserService userService;
 
     public UserController(DynamoDBUserService userService) {
@@ -22,27 +26,41 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> create(@Valid @RequestBody UserDto dto) {
-        userService.createUser(dto);
-        return ResponseEntity.ok("User created: " + dto.getUserId());
+    public ResponseEntity<Map<String, String>> create(@Valid @RequestBody UserDto dto) {
+
+        UserResponseDto created = userService.createUser(dto);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("userId", created.getUserId());
+        response.put("username", created.getUsername());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponseDto> read(@PathVariable String userId) {
-        Optional<UserResponseDto> user = userService.getUser(userId);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return userService.getUser(userId).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<String> update(@PathVariable String userId,
-                                         @Valid @RequestBody UpdateUserDto dto) {
+    public ResponseEntity<Map<String, String>> update(@PathVariable String userId, @RequestBody UpdateUserDto dto) {
+
         userService.updateUser(userId, dto);
-        return ResponseEntity.ok("User updated: " + userId);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "User updated successfully");
+        response.put("userId", userId);
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<String> delete(@PathVariable String userId) {
-        userService.deleteUser(userId);
-        return ResponseEntity.ok("User deleted: " + userId);
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.deleteUser(userId));
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserResponseDto>> listUsers() {
+        return ResponseEntity.ok(userService.listUsers());
     }
 }

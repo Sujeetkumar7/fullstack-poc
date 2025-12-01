@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 
 public class UpdateUserDto {
 
+
     @DecimalMin(value = "0.0", inclusive = true, message = "current_balance must be >= 0")
     private Double currentBalance;
 
