@@ -62,15 +62,24 @@ public class DynamoDBUserService {
     //Get User
 
     public Optional<UserResponseDto> getUser(String userId) {
+        Map<String, AttributeValue> key = Map.of("user_id", AttributeValue.builder().s(userId).build());
 
-        Map<String, AttributeValue> key = Map.of("user_id", AttributeValue.fromS(userId));
-
-        GetItemRequest request = GetItemRequest.builder().tableName(tableName).key(key).consistentRead(true).build();
+        GetItemRequest request = GetItemRequest.builder()
+                .tableName(tableName)
+                .key(key)
+                .consistentRead(true)
+                .build();
 
         Map<String, AttributeValue> item = dynamoDbClient.getItem(request).item();
+        if (item == null || item.isEmpty()) return Optional.empty();
 
-        if (item == null || item.isEmpty()) {
-            return Optional.empty();
+        // If item has a status attribute and it's "inactive", filter it out.
+        AttributeValue statusAttr = item.get("status");
+        if (statusAttr != null && statusAttr.s() != null) {
+            String status = statusAttr.s();
+            if ("inactive".equalsIgnoreCase(status)) {
+                throw new RuntimeException("User not found");
+            }
         }
 
         return Optional.of(mapItemToResponse(item));
