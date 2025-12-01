@@ -81,8 +81,15 @@ export class Analytics implements OnDestroy {
       .split('\n')
       .map((r) => r.split(','));
 
-    this.headers = rows[0];
+    this.headers = rows[0].map((h) => this.formatHeader(h));
+
     this.tableData = rows.slice(1);
+  }
+
+  formatHeader(header: string): string {
+    return header
+      .replace(/_/g, ' ')
+      .replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1));
   }
 
   downloadReport() {
