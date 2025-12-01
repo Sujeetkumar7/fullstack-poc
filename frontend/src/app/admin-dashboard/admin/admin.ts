@@ -17,14 +17,12 @@ import { Table } from '../../common/table/table';
 import { Dialog } from '../../common/dialog/dialog';
 import { AdminLayout } from '../admin-layout/admin-layout';
 import { UserService, UserResponse, UserRequest } from '../../services/user-service/user';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
 import { Spinner } from '../../common/spinner/spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 interface User {
   currentBalance: number;
   userId: string;
-  userName: string;
+  username: string;
   userRole: string;
 }
 @Component({
@@ -65,7 +63,7 @@ export class Admin implements OnInit {
 
   tableColoumnNames: { [key: string]: string } = {
     userId: 'User ID',
-    userName: 'User Name',
+    username: 'User Name',
     userRole: 'User Role',
   };
 
@@ -99,21 +97,6 @@ export class Admin implements OnInit {
         console.error('Error fetching users:', err);
         this.loading = false;
         this.cdr.detectChanges();
-
-        // const mockData: UserResponse[] = [
-        //   { currentBalance: 2500.75, userId: 'U001', userName: 'Avinash', userRole: 'USER' },
-        //   { currentBalance: 6500.75, userId: 'A001', userName: 'Sujeet K P', userRole: 'ADMIN' },
-        //   { currentBalance: 3500.75, userId: 'U002', userName: 'Goutham T', userRole: 'USER' },
-        // ];
-
-        // of(mockData)
-        //   .pipe(delay(2000)) // Optional delay for fallback
-        //   .subscribe((data) => {
-        //     this.users = data;
-        //     console.log('Mock data loaded as fallback:', data);
-        //     this.loading = false; // Stop loader only after mock data is ready
-        //     this.cdr.detectChanges();
-        //   });
       },
     });
   }
@@ -142,15 +125,18 @@ export class Admin implements OnInit {
     this.loading = true;
 
     const requestBody: UserRequest = {
-      userName: this.userForm.value.username,
+      username: this.userForm.value.username,
       userRole: this.userForm.value.role,
     };
 
     this.userService.createUser(requestBody).subscribe({
       next: (response: UserResponse) => {
-        console.log('API Response:', response);
+        const newUser = {
+          ...response,
+          userRole: this.userForm.value.role,
+        };
 
-        this.users = [...this.users, response];
+        this.users = [...this.users, newUser];
 
         this.loading = false;
         this.cdr.detectChanges();
@@ -193,7 +179,7 @@ export class Admin implements OnInit {
     this.editMode = true;
     this.editUserId = user.userId;
 
-    this.userForm.patchValue({ username: user.userName, role: user.userRole });
+    this.userForm.patchValue({ username: user.username, role: user.userRole });
 
     const dialogRef = this.dialog.open(Dialog, {
       width: '400px',
@@ -214,7 +200,7 @@ export class Admin implements OnInit {
   handleEditUser(dialogRef: any, user: User) {
     const updatedUser: UserResponse = {
       userId: user.userId,
-      userName: this.userForm.value.username,
+      username: this.userForm.value.username,
       currentBalance: user.currentBalance,
       userRole: this.userForm.value.role,
     };
@@ -235,7 +221,7 @@ export class Admin implements OnInit {
 
         dialogRef.close();
 
-        this.snackBar.open(`User ${updatedUser.userId} updated successfully!`, '', {
+        this.snackBar.open(`User ${updatedUser.username} updated successfully!`, '', {
           duration: 3000,
           panelClass: ['success-snackbar'],
           horizontalPosition: 'end',
@@ -288,7 +274,7 @@ export class Admin implements OnInit {
 
         dialogRef.close();
 
-        this.snackBar.open(`User ${user.userId} deleted successfully!`, '', {
+        this.snackBar.open(`User ${user.username} deleted successfully!`, '', {
           duration: 3000,
           panelClass: ['success-snackbar'],
           horizontalPosition: 'end',

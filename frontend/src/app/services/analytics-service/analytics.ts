@@ -10,14 +10,20 @@ export class AnalyticsService {
   constructor(private http: HttpClient) {}
 
   runAnalytics(): Observable<string> {
-    return this.http.get<string>(`${this.apiUrl + API_ENDPOINTS.transaction}/analytics`, {
-      responseType: 'text' as 'json',
-    });
+    return this.http.get<string>(
+      `${this.apiUrl + API_ENDPOINTS.transaction + API_ENDPOINTS.analytics}`,
+      {
+        responseType: 'text' as 'json',
+      }
+    );
   }
 
   getDownloadUrl(): Observable<string> {
-    return this.http.get<string>(`${this.apiUrl + API_ENDPOINTS.transaction}/download`, {
-      responseType: 'text' as 'json',
-    });
+    return this.http.get<string>(
+      `${this.apiUrl + API_ENDPOINTS.transaction + API_ENDPOINTS.download}`,
+      {
+        responseType: 'text' as 'json',
+      }
+    );
   }
 }

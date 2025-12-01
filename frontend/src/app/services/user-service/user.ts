@@ -4,14 +4,14 @@ import { Observable } from 'rxjs';
 import { ENV, API_ENDPOINTS } from '../../constants';
 
 export interface UserRequest {
-  userName: string;
+  username: string;
   userRole: string;
 }
 
 export interface UserResponse {
   currentBalance: number;
   userId: string;
-  userName: string;
+  username: string;
   userRole: string;
 }
 
