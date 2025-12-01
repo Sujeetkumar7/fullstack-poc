@@ -47,17 +47,29 @@ public class DynamoDBUserService {
         String newUserId = generateUserId();
         String finalUsername = generateFinalUsername(dto.getUsername());
 
+        // Validate and assign role
+        String role = dto.getUserRole();
+        if (role == null || (!role.equalsIgnoreCase("USER") && !role.equalsIgnoreCase("ADMIN"))) {
+            role = "USER"; // default role
+        }
+        role = role.toUpperCase();
+
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("user_id", AttributeValue.fromS(newUserId));
         item.put("username", AttributeValue.fromS(finalUsername));
         item.put("current_balance", AttributeValue.fromN("0.0"));
-        item.put("user_role", AttributeValue.fromS("USER"));
+        item.put("user_role", AttributeValue.fromS(role));
         item.put("status", AttributeValue.fromS("ACTIVE"));
-        dynamoDbClient.putItem(PutItemRequest.builder().tableName(tableName).item(item).build());
 
-        return new UserResponseDto(newUserId, finalUsername, 0.0, "USER");
+        dynamoDbClient.putItem(
+                PutItemRequest.builder()
+                        .tableName(tableName)
+                        .item(item)
+                        .build()
+        );
+
+        return new UserResponseDto(newUserId, finalUsername, 0.0, role);
     }
-
 
     //Get User based on Username
     public Optional<UserResponseDto> getUser(String username) {
