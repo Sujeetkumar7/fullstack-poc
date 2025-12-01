@@ -17,8 +17,6 @@ import { Table } from '../../common/table/table';
 import { Dialog } from '../../common/dialog/dialog';
 import { AdminLayout } from '../admin-layout/admin-layout';
 import { UserService, UserResponse, UserRequest } from '../../services/user-service/user';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
 import { Spinner } from '../../common/spinner/spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 interface User {
@@ -99,21 +97,6 @@ export class Admin implements OnInit {
         console.error('Error fetching users:', err);
         this.loading = false;
         this.cdr.detectChanges();
-
-        // const mockData: UserResponse[] = [
-        //   { currentBalance: 2500.75, userId: 'U001', userName: 'Avinash', userRole: 'USER' },
-        //   { currentBalance: 6500.75, userId: 'A001', userName: 'Sujeet K P', userRole: 'ADMIN' },
-        //   { currentBalance: 3500.75, userId: 'U002', userName: 'Goutham T', userRole: 'USER' },
-        // ];
-
-        // of(mockData)
-        //   .pipe(delay(2000)) // Optional delay for fallback
-        //   .subscribe((data) => {
-        //     this.users = data;
-        //     console.log('Mock data loaded as fallback:', data);
-        //     this.loading = false; // Stop loader only after mock data is ready
-        //     this.cdr.detectChanges();
-        //   });
       },
     });
   }
@@ -148,9 +131,12 @@ export class Admin implements OnInit {
 
     this.userService.createUser(requestBody).subscribe({
       next: (response: UserResponse) => {
-        console.log('API Response:', response);
+        const newUser = {
+          ...response,
+          userRole: this.userForm.value.role,
+        };
 
-        this.users = [...this.users, response];
+        this.users = [...this.users, newUser];
 
         this.loading = false;
         this.cdr.detectChanges();
@@ -235,7 +221,7 @@ export class Admin implements OnInit {
 
         dialogRef.close();
 
-        this.snackBar.open(`User ${updatedUser.userId} updated successfully!`, '', {
+        this.snackBar.open(`User ${updatedUser.username} updated successfully!`, '', {
           duration: 3000,
           panelClass: ['success-snackbar'],
           horizontalPosition: 'end',
@@ -288,7 +274,7 @@ export class Admin implements OnInit {
 
         dialogRef.close();
 
-        this.snackBar.open(`User ${user.userId} deleted successfully!`, '', {
+        this.snackBar.open(`User ${user.username} deleted successfully!`, '', {
           duration: 3000,
           panelClass: ['success-snackbar'],
           horizontalPosition: 'end',
