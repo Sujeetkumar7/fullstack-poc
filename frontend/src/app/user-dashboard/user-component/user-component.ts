@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
@@ -32,6 +32,7 @@ export class UserComponent implements OnInit {
     private userService: UserService,
     private authService: AuthService,
     private dialog: MatDialog,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +47,7 @@ export class UserComponent implements OnInit {
 
 loadUserDetails() {
   this.loading = true; // show spinner
+  this.cdr.detectChanges();
   this.userService.getUserByUsername(this.userName)
     .pipe(take(1))
     .subscribe({
@@ -63,6 +65,7 @@ loadUserDetails() {
       take(1),                
       finalize(() => {
         this.loading = false;
+        this.cdr.detectChanges();
       })
     )
     .subscribe({
