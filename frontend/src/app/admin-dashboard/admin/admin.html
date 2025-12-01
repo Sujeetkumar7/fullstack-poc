@@ -4,13 +4,21 @@
       <h5 class="mb-0">User Management</h5>
       <button class="btn btn-primary btn-sm" (click)="openAddUser()">Add User</button>
     </div>
+
     <div class="card-body">
-      <app-table
-        [data]="users"
-        [displayedColumns]="['id', 'username']"
-        (edit)="onEditUser($event)"
-        (delete)="confirmDelete($event)"
-      ></app-table>
+      <div *ngIf="loading" class="text-center my-5">
+        <app-spinner [size]="40" color="#1976d2"></app-spinner>
+      </div>
+
+      <div *ngIf="!loading && users.length > 0">
+        <app-table
+          [data]="users"
+          [displayedColumns]="['userId', 'userName', 'userRole']"
+          (edit)="onEditUser($event)"
+          (delete)="confirmDelete($event)"
+          [columnNames]="tableColoumnNames"
+        ></app-table>
+      </div>
     </div>
   </div>
 
@@ -23,12 +31,49 @@
           *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched"
           class="text-danger mt-1"
         >
-          <small *ngIf="userForm.get('username')?.errors?.['required']">
-            Username is required.
-          </small>
-          <small *ngIf="userForm.get('username')?.errors?.['minlength']">
-            Minimum 3 characters required.
-          </small>
+          <small *ngIf="userForm.get('username')?.errors?.['required']"
+            >Username is required.</small
+          >
+          <small *ngIf="userForm.get('username')?.errors?.['minlength']"
+            >Minimum 3 characters required.</small
+          >
+          <small *ngIf="userForm.get('username')?.errors?.['pattern']">
+            Spaces are not allowed in username.</small
+          >
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Role</label>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="roleUser"
+              value="USER"
+              formControlName="role"
+            />
+            <label class="form-check-label" for="roleUser">USER</label>
+          </div>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="roleAdmin"
+              value="ADMIN"
+              formControlName="role"
+            />
+            <label class="form-check-label" for="roleAdmin">ADMIN</label>
+          </div>
+        </div>
+
+        <div
+          *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched"
+          class="text-danger mt-1"
+        >
+          <small>Role is required.</small>
         </div>
       </div>
     </form>
@@ -36,7 +81,7 @@
 
   <ng-template #deleteUserTemplate let-user>
     <p>
-      Are you sure you want to delete <strong>{{ user.username }}</strong
+      Are you sure you want to delete <strong>{{ user.userName }}</strong
       >?
     </p>
   </ng-template>

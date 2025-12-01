@@ -46,6 +46,7 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
     // SLF4J for logging
 	implementation 'org.slf4j:slf4j-api:2.0.17'
+	implementation 'org.apache.commons:commons-lang3:3.16.0'
 
 	// Lombok (optional for boilerplate reduction)
 	compileOnly 'org.projectlombok:lombok'

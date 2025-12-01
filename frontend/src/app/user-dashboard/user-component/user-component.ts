@@ -2,12 +2,13 @@ import { Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { TransactionService } from '../../transaction-service';
-import { UserService } from '../../user-service';
+import { TransactionService } from '../../services/transaction-service/transaction-service';
+
 import { MatTableModule } from '@angular/material/table';
 import { TransferDialogComponent } from '../transfer-dialog-component/transfer-dialog-component';
 import { UserLayout } from '../user-layout/user-layout';
 import { Table } from '../../common/table/table';
+import { UserService } from '../../services/user-service/user';
 
 @Component({
   selector: 'app-user-component',
@@ -32,7 +33,7 @@ export class UserComponent implements OnInit {
   }
 
   loadUsers(){
-    this.userService.getUsers().subscribe(res => { this.users = res});
+    this.userService.getAllUsers().subscribe(res => { this.users = res});
   }
   
   searchUserHistory(){

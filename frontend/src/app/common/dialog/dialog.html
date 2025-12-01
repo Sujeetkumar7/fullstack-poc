@@ -5,16 +5,21 @@
     </ng-container>
   </ng-container>
 </div>
-<div mat-dialog-actions align="end" class="flex gap-2">
-  <button (click)="onCancel()" class="btn btn-light btn-sm fixed-btn">
+<div mat-dialog-actions align="end" class="flex gap-2 px-4">
+  <button
+    (click)="onCancel()"
+    class="btn btn-light btn-sm fixed-btn"
+    [disabled]="data.isSubmitting"
+  >
     {{ data.cancelText || 'Cancel' }}
   </button>
 
   <button
     class="btn btn-primary btn-sm fixed-btn"
-    [disabled]="!data.isFormValid()"
-    (click)="dialogRef.close(true)"
+    [disabled]="!data.isFormValid() || data.isSubmitting"
+    (click)="onConfirm()"
   >
-    {{ data.confirmText || 'OK' }}
+    <span *ngIf="!data.isSubmitting">{{ data.confirmText || 'OK' }}</span>
+    <app-spinner *ngIf="data.isSubmitting" [size]="20" color="white"></app-spinner>
   </button>
 </div>

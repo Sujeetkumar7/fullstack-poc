@@ -15,7 +15,7 @@ export interface Transaction {
 })
 export class TransactionService {
   // Toggle this to `false` to call the real backend
-  private useMock = true;
+  private useMock = false;
   private baseUrl = 'http://localhost:8080';
 
   // Simple in-memory mock store
