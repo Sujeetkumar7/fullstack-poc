@@ -1,6 +1,7 @@
 package com.wmn.backend.service;
 
 import com.wmn.backend.dto.UpdateUserDto;
+import com.wmn.backend.dto.UserDto;
 import com.wmn.backend.dto.UserResponseDto;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -19,22 +20,46 @@ public class DynamoDBUserService {
         this.dynamoDbClient = dynamoDbClient;
     }
 
-    public void createUser(com.wmn.backend.dto.UserDto dto) {
-        Map<String, AttributeValue> item = new HashMap<>();
-        item.put("user_id", AttributeValue.builder().s(dto.getUserId()).build());
-        item.put("username", AttributeValue.builder().s(dto.getUsername()).build());
-        item.put("current_balance", AttributeValue.builder().n(dto.getCurrentBalance().toString()).build());
-        item.put("user_role", AttributeValue.builder().s(dto.getUserRole()).build());
+    //Auto-generate userId (U001, U002, ...)
+    private String generateUserId() {
+        ScanResponse scan = dynamoDbClient.scan(ScanRequest.builder().tableName(tableName).build());
 
-        PutItemRequest req = PutItemRequest.builder()
-                .tableName(tableName)
-                .item(item)
-                .conditionExpression("attribute_not_exists(user_id)")
-                .build();
+        int max = scan.items().stream().map(i -> i.get("user_id")).filter(Objects::nonNull).map(AttributeValue::s).filter(id -> id.startsWith("U")).map(id -> Integer.parseInt(id.substring(1))).max(Integer::compareTo).orElse(0);
 
-        dynamoDbClient.putItem(req);
+        return String.format("U%03d", max + 1);
     }
 
+
+    // ------------------------------------------------
+
+    //Auto-generate final username (john → john-1001…)
+    private String generateFinalUsername(String base) {
+        ScanResponse scan = dynamoDbClient.scan(ScanRequest.builder().tableName(tableName).build());
+
+        int maxSuffix = scan.items().stream().map(i -> i.get("username")).filter(Objects::nonNull).map(AttributeValue::s).filter(u -> u.startsWith(base + "-")).map(u -> u.substring(u.lastIndexOf("-") + 1)).filter(num -> num.matches("\\d+")).map(Integer::parseInt).max(Integer::compareTo).orElse(1000); // start at 1001
+
+        return base + "-" + (maxSuffix + 1);
+    }
+
+    //Create User
+
+    public UserResponseDto createUser(UserDto dto) {
+        String newUserId = generateUserId();
+        String finalUsername = generateFinalUsername(dto.getUsername());
+
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("user_id", AttributeValue.fromS(newUserId));
+        item.put("username", AttributeValue.fromS(finalUsername));
+        item.put("current_balance", AttributeValue.fromN("0.0"));
+        item.put("user_role", AttributeValue.fromS("USER"));
+        item.put("status", AttributeValue.fromS("ACTIVE"));
+        dynamoDbClient.putItem(PutItemRequest.builder().tableName(tableName).item(item).build());
+
+        return new UserResponseDto(newUserId, finalUsername, 0.0, "USER");
+    }
+
+
+    //Get User
 
     public Optional<UserResponseDto> getUser(String userId) {
         Map<String, AttributeValue> key = Map.of("user_id", AttributeValue.builder().s(userId).build());
@@ -48,99 +73,84 @@ public class DynamoDBUserService {
         Map<String, AttributeValue> item = dynamoDbClient.getItem(request).item();
         if (item == null || item.isEmpty()) return Optional.empty();
 
+        // If item has a status attribute and it's "inactive", filter it out.
+        AttributeValue statusAttr = item.get("status");
+        if (statusAttr != null && statusAttr.s() != null) {
+            String status = statusAttr.s();
+            if ("inactive".equalsIgnoreCase(status)) {
+                throw new RuntimeException("User not found");
+            }
+        }
+
         return Optional.of(mapItemToResponse(item));
     }
 
-    // UPDATE (partial)
-    public void updateUser(String userId, UpdateUserDto dto) {
-        List<String> updates = new ArrayList<>();
+    // UPDATE
+    public UserResponseDto updateUser(String userId, UpdateUserDto dto) {
+
         Map<String, String> names = new HashMap<>();
         Map<String, AttributeValue> values = new HashMap<>();
+        List<String> updates = new ArrayList<>();
 
         if (dto.getUsername() != null) {
+            String newFinalUsername = generateFinalUsername(dto.getUsername());
             names.put("#username", "username");
             updates.add("#username = :username");
-            values.put(":username", AttributeValue.builder().s(dto.getUsername()).build());
+            values.put(":username", AttributeValue.fromS(newFinalUsername));
         }
+
         if (dto.getCurrentBalance() != null) {
             names.put("#current_balance", "current_balance");
             updates.add("#current_balance = :current_balance");
-            values.put(":current_balance", AttributeValue.builder().n(dto.getCurrentBalance().toString()).build());
+            values.put(":current_balance", AttributeValue.fromN(dto.getCurrentBalance().toString()));
         }
+
         if (dto.getUserRole() != null) {
             names.put("#user_role", "user_role");
             updates.add("#user_role = :user_role");
-            values.put(":user_role", AttributeValue.builder().s(dto.getUserRole()).build());
+            values.put(":user_role", AttributeValue.fromS(dto.getUserRole()));
         }
 
         if (updates.isEmpty()) {
-            throw new IllegalArgumentException("No fields provided to update");
+            throw new IllegalArgumentException("No fields to update");
         }
 
-        String updateExpr = "SET " + String.join(", ", updates);
+        UpdateItemResponse updated = dynamoDbClient.updateItem(UpdateItemRequest.builder().tableName(tableName).key(Map.of("user_id", AttributeValue.fromS(userId))).updateExpression("SET " + String.join(", ", updates)).expressionAttributeNames(names).expressionAttributeValues(values).returnValues(ReturnValue.ALL_NEW).build());
 
-        UpdateItemRequest request = UpdateItemRequest.builder()
-                .tableName(tableName)
-                .key(Map.of("user_id", AttributeValue.builder().s(userId).build()))
-                .updateExpression(updateExpr)
-                .expressionAttributeNames(names)
-                .expressionAttributeValues(values)
-                .conditionExpression("attribute_exists(user_id)")
-                .returnValues(ReturnValue.ALL_NEW)
-                .build();
-
-        dynamoDbClient.updateItem(request);
+        return mapItemToResponse(updated.attributes());
     }
 
-    public void deleteUser(String userId) {
-        DeleteItemRequest request = DeleteItemRequest.builder()
-                .tableName(tableName)
-                .key(Map.of("user_id", AttributeValue.builder().s(userId).build()))
-                .conditionExpression("attribute_exists(user_id)")
-                .build();
+    //SOFT DELETE
+    public Map<String, Object> deleteUser(String userId) {
 
-        dynamoDbClient.deleteItem(request);
+        // Soft delete: set status = INACTIVE
+        dynamoDbClient.updateItem(UpdateItemRequest.builder().tableName(tableName).key(Map.of("user_id", AttributeValue.fromS(userId))).updateExpression("SET #s = :inactive").expressionAttributeNames(Map.of("#s", "status")).expressionAttributeValues(Map.of(":inactive", AttributeValue.fromS("INACTIVE"))).build());
+
+        // Return minimal response
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "User deleted successfully");
+        response.put("userId", userId);
+
+        return response;
     }
 
-    public List<UserResponseDto> listUsers(int pageSize, Map<String, AttributeValue> exclusiveStartKey) {
-        ScanRequest.Builder builder = ScanRequest.builder()
-                .tableName(tableName)
-                .limit(pageSize);
+    //LIST USERS
+    public List<UserResponseDto> listUsers() {
+        ScanResponse scan = dynamoDbClient.scan(ScanRequest.builder().tableName(tableName).build());
 
-        if (exclusiveStartKey != null && !exclusiveStartKey.isEmpty()) {
-            builder.exclusiveStartKey(exclusiveStartKey);
-        }
-
-        ScanResponse resp = dynamoDbClient.scan(builder.build());
-        return resp.items().stream().map(this::mapItemToResponse).collect(Collectors.toList());
+        return scan.items().stream().map(this::mapItemToResponse).collect(Collectors.toList());
     }
+
 
     private UserResponseDto mapItemToResponse(Map<String, AttributeValue> item) {
-        String userId = item.getOrDefault("user_id", AttributeValue.builder().s("").build()).s();
-        String username = item.getOrDefault("username", AttributeValue.builder().s("").build()).s();
-        Double currentBalance = Optional.ofNullable(item.get("current_balance"))
-                .map(AttributeValue::n)
-                .map(Double::valueOf)
-                .orElse(0.0);
-        String userRole = item.getOrDefault("user_role", AttributeValue.builder().s("").build()).s();
+        String userId = Optional.ofNullable(item.get("user_id")).map(AttributeValue::s).orElse(null);
+
+        String username = Optional.ofNullable(item.get("username")).map(AttributeValue::s).orElse(null);
+
+        Double currentBalance = Optional.ofNullable(item.get("current_balance")).map(AttributeValue::n).map(Double::valueOf).orElse(0.0);
+
+        String userRole = Optional.ofNullable(item.get("user_role")).map(AttributeValue::s).orElse(null);
+
         return new UserResponseDto(userId, username, currentBalance, userRole);
-    }
-
-    /**
-     * Update the user's current balance attribute in DynamoDB.
-     *
-     */
-    public void updateUserBalance(String userId, double newBalance) {
-        Map<String, AttributeValue> key = Collections.singletonMap("userId", AttributeValue.builder().s(userId).build());
-        Map<String, AttributeValue> exprVals = Collections.singletonMap(":current_balance", AttributeValue.builder().n(Double.toString(newBalance)).build());
-
-        UpdateItemRequest req = UpdateItemRequest.builder()
-                .tableName(tableName)
-                .key(Map.of("user_id", AttributeValue.builder().s(userId).build()))
-                .updateExpression("SET current_balance = :current_balance")
-                .expressionAttributeValues(exprVals)
-                .build();
-
-        dynamoDbClient.updateItem(req);
     }
 }

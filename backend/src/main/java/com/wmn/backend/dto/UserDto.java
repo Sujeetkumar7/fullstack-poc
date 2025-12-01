@@ -3,17 +3,17 @@ package com.wmn.backend.dto;
 import jakarta.validation.constraints.*;
 
 public class UserDto {
-    @NotBlank
+
     private String userId;
 
     @NotBlank
     private String username;
 
-    @NotNull
+
     @DecimalMin(value = "0.0", inclusive = true, message = "current_balance must be >= 0")
     private Double currentBalance;
 
-    @NotBlank
+
     @Pattern(regexp = "ADMIN|USER", message = "user_role must be ADMIN or USER")
     private String userRole;
 
