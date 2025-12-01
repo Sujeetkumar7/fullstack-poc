@@ -11,8 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
@@ -34,9 +34,6 @@ public class DynamoDBTransactionService {
 
     @Autowired
     DynamoDBUserService userService;
-
-    @Autowired
-    private S3Client s3Client;
 
     public DynamoDBTransactionService(DynamoDbClient dynamoDbClient) {
         this.dynamoDbClient = dynamoDbClient;
@@ -147,9 +144,12 @@ log.info("Transaction ID: " + t.getTransactionId());
     }
 
     public ResponseEntity<ByteArrayResource> downloadAnalyticsReport() {
-        String bucket = "wmn-analytics-reports-bucket"; //TODO::need to cofirm bucket name
-        String key = "analytics_report.csv"; //TODO:: cofirm key name
+        String bucket = "wmnanalytics";
+        String key = "analytics-output/analytics_report.csv";
         try {
+            S3Client s3Client = S3Client.builder()
+                    .region(Region.AP_SOUTH_2)
+                    .build();
             GetObjectRequest req = GetObjectRequest.builder()
                     .bucket(bucket)
                     .key(key)
