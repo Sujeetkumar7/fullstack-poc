@@ -74,7 +74,7 @@ export class Login {
         },
         error: (err) => {
           console.error('Login failed:', err);
-          this.snackBar.open('Login failed. Please try again.', '', {
+          this.snackBar.open('User does not exist!', '', {
             duration: 3000,
             panelClass: ['error-snackbar'],
             horizontalPosition: 'end',
