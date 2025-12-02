@@ -11,7 +11,7 @@
         <button type="button"
                 class="btn btn-primary btn-sm"
                 (click)="openTransfer()"
-                [disabled]="balance < 0">
+                [disabled]="balance <0">
           Transfer Money
         </button>
       </div>
@@ -25,18 +25,24 @@
     </div>
     <div class="card-body">
 
-    <!-- Spinner while loading -->
-    <app-spinner *ngIf="loading" [size]="23" color="btn-primary"></app-spinner>
-    <!-- Table when loaded -->
-      <app-table *ngIf="!loading && transactions.length"
-           [data]="transactions"
-           [displayedColumns]="displayedColumns"
-           [showFilter]="false"
-           [showActions]="false"></app-table>
-      <!-- <div *ngIf="!loading && !transactions.length" class="alert alert-info mb-0">
-        <strong>No data to display</strong>
-        <p class="mb-0 mt-1">No transactions found for this user.</p>
-      </div> -->
+      <!-- Spinner while loading -->
+      <app-spinner *ngIf="(loading$ | async)" [size]="23" color="primary"></app-spinner>
+
+      <!-- Table when loaded -->
+      <ng-container *ngIf="!(loading$ | async)">
+        <app-table *ngIf="(transactions$ | async) as transactions; else noData"
+                   [data]="transactions"
+                   [displayedColumns]="displayedColumns"
+                   [showFilter]="true"
+                   [showActions]="false"></app-table>
+
+        <ng-template #noData>
+          <div class="alert alert-info mb-0">
+            <strong>No data to display</strong>
+            <p class="mb-0 mt-1">No transactions found for this user.</p>
+          </div>
+        </ng-template>
+      </ng-container>
     </div>
   </div>
 </div>

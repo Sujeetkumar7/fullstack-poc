@@ -4,6 +4,7 @@ import com.wmn.backend.dto.UpdateUserDto;
 import com.wmn.backend.dto.UserDto;
 import com.wmn.backend.dto.UserResponseDto;
 import com.wmn.backend.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 @CrossOrigin
+@Tag(name = "User Management", description = "APIs for managing users (Admin only)")
 public class UserController {
 
     private final UserService userService;

@@ -15,14 +15,16 @@ import { UserResponse } from '../../services/user-service/user'
 })
 export class TransferDialogComponent {
   transferForm!: FormGroup;
+  filteredUsers: UserResponse[] =[]
   
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<TransferDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { users: UserResponse[], fromUser: string}
+    @Inject(MAT_DIALOG_DATA) public data: { users: UserResponse[], loggedInUser: string}
   ) {
+    this.filteredUsers = data.users.filter(user=> user.username !== data.loggedInUser);
     this.transferForm = this.fb.group({
-      userId: [data.fromUser, Validators.required],
+      userId: [data.loggedInUser, Validators.required],
       username: ['', Validators.required],
       amount: ['', Validators.required],
       transactionType: ['debit', Validators.required]

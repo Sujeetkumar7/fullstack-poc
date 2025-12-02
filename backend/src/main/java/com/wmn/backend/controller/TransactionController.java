@@ -3,6 +3,7 @@ package com.wmn.backend.controller;
 
 import com.wmn.backend.model.TransactionDto;
 import com.wmn.backend.service.TransactionService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/transaction")
 @CrossOrigin
+@Tag(name = "Transaction Management", description = "APIs for money transfer and transaction history")
 public class TransactionController {
     private final TransactionService transactionService;
 
