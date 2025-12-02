@@ -17,6 +17,9 @@
     <div class="mb-3">
       <label for="amount" class="form-label fw-500">Amount</label>
       <input id="amount" type="number" class="form-control" formControlName="amount" placeholder="Enter amount" />
+      <div *ngIf="transferForm.get('amount')?.hasError('insufficientBalance')" class="text-danger mt-1">
+         Amount exceeds available balance (₹{{ data.balance }}).
+        </div>
     </div>
 
     <!-- <div class="mb-2">
@@ -35,6 +38,17 @@
   </form>
 </div>
 <div mat-dialog-actions align="end" class="flex gap-2">
-  <button type="button" class="btn btn-light btn-sm fixed-btn" (click)="dialogRef.close(false)">Cancel</button>
-  <button type="button" class="btn btn-primary btn-sm fixed-btn" (click)="submit()" [disabled]="!transferForm.valid">Transfer</button>
+  <button type="button"
+   class="btn btn-light btn-sm fixed-btn" 
+   (click)="dialogRef.close(false)"
+   >
+   Cancel
+  </button>
+  <button type="button"
+        class="btn btn-primary btn-sm"
+        (click)="submit()"
+        [disabled]="!transferForm.valid">
+        Transfer
+  </button>
+
 </div>
