@@ -1,6 +1,7 @@
 
 package com.wmn.backend.controller;
 
+import com.wmn.backend.dto.TransferDto;
 import com.wmn.backend.model.TransactionDto;
 import com.wmn.backend.service.TransactionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,9 +28,8 @@ public class TransactionController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<TransactionDto> createTransaction(@RequestBody TransactionDto txn) {
-        TransactionDto created = transactionService.createTransaction(txn);
-        return ResponseEntity.ok().body(created);
+    public ResponseEntity<?> createTransaction(@RequestBody TransferDto txn) {
+        return ResponseEntity.ok(transactionService.createTransaction(txn));
     }
 
 }
