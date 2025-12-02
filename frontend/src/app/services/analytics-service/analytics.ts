@@ -9,21 +9,21 @@ export class AnalyticsService {
 
   constructor(private http: HttpClient) {}
 
-  runAnalytics(): Observable<string> {
-    return this.http.get<string>(
-      `${this.apiUrl + API_ENDPOINTS.transaction + API_ENDPOINTS.analytics}`,
-      {
-        responseType: 'text' as 'json',
-      }
+  startAnalytics(): Observable<{ status: string; jobRunId: string }> {
+    return this.http.get<{ status: string; jobRunId: string }>(
+      `${this.apiUrl + API_ENDPOINTS.analytics + API_ENDPOINTS.start}`
+    );
+  }
+
+  getAnalyticsStatus(jobId: string): Observable<{ jobId: string; status: string }> {
+    return this.http.get<{ jobId: string; status: string }>(
+      `${this.apiUrl + API_ENDPOINTS.analytics + API_ENDPOINTS.status}?jobId=${jobId}`
     );
   }
 
   getDownloadUrl(): Observable<string> {
-    return this.http.get<string>(
-      `${this.apiUrl + API_ENDPOINTS.transaction + API_ENDPOINTS.download}`,
-      {
-        responseType: 'text' as 'json',
-      }
-    );
+    return this.http.get(`${this.apiUrl + API_ENDPOINTS.analytics + API_ENDPOINTS.download}`, {
+      responseType: 'text',
+    });
   }
 }
