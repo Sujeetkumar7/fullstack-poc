@@ -7,7 +7,7 @@ export interface UserDetails {
   userId: string;
   username: string;
   userRole: string;
-  currentBalance?:number;
+  currentBalance?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -40,6 +40,7 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('userDetails');
+      localStorage.removeItem('analyticsState');
     }
     this.loggedIn.next(false);
     this.userDetails = null;

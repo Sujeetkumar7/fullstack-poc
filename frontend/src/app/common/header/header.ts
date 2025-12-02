@@ -1,5 +1,14 @@
-import { Component, EventEmitter, Input, Output, HostListener, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  HostListener,
+  ElementRef,
+  Inject,
+  PLATFORM_ID,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
@@ -18,15 +27,20 @@ export class Header {
   role: string = '';
   menuOpen = false;
 
-  constructor(private authService: AuthService, private eRef: ElementRef) {}
+  constructor(
+    private authService: AuthService,
+    private eRef: ElementRef,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit() {
-    const userDetails = localStorage.getItem('userDetails');
-
-    if (userDetails) {
-      const parsed = JSON.parse(userDetails);
-      this.username = parsed.username || 'User';
-      this.role = parsed.userRole || '';
+    if (isPlatformBrowser(this.platformId)) {
+      const userDetails = localStorage.getItem('userDetails');
+      if (userDetails) {
+        const parsed = JSON.parse(userDetails);
+        this.username = parsed.username || 'User';
+        this.role = parsed.userRole || '';
+      }
     }
   }
 
