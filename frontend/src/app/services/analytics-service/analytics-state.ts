@@ -43,7 +43,7 @@ export class AnalyticsStateService {
     this.analyticsService.startAnalytics().subscribe({
       next: (response) => {
         const jobId = response.jobRunId;
-        this.updateState({ statusMessage: `Job started. ID: ${jobId}` });
+        this.updateState({ statusMessage: 'Analytics is running...' });
         this.startPollingForStatus(jobId);
       },
       error: () => {
