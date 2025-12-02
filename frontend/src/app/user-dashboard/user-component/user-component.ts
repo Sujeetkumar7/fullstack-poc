@@ -22,6 +22,7 @@ import { Spinner } from '../../common/spinner/spinner';
 export class UserComponent implements AfterViewInit {
   userName = '';
   balance = 0;
+  userId = '';
 
   // Triggers to refresh streams
   private refresh$ = new BehaviorSubject<void>(undefined);
@@ -30,7 +31,7 @@ export class UserComponent implements AfterViewInit {
   transactions$!: Observable<any[]>;
   loading$ = new BehaviorSubject<boolean>(false);
 
-  displayedColumns = ['transactionId', 'transactionType', 'amount', 'timestamp', 'username'];
+  displayedColumns = ['transactionId', 'userId','transactionType', 'amount', 'fromUsername','toUsername','timestamp',];
 
   constructor(
     private transactionService: TransactionService,
@@ -43,6 +44,7 @@ export class UserComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     const user = this.authService.getUserDetails();
     this.userName = user?.username ?? '';
+    this.userId = user?.userId ?? '';
     this.balance = user?.currentBalance ?? 0;
     if (!this.userName) return;
     // Transactions stream with refresh trigger
@@ -80,7 +82,7 @@ export class UserComponent implements AfterViewInit {
     this.userService.getAllUsers().subscribe(users => {
       const dialogRef = this.dialog.open(TransferDialogComponent, {
         width: '400px',
-        data: { users, loggedInUser: this.userName, balance: this.balance }
+        data: { users, loggedInUser: this.userId, balance: this.balance }
       });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {

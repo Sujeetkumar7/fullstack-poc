@@ -25,16 +25,15 @@ export class TransferDialogComponent {
   ) {
     this.filteredUsers = data.users.filter(user=> user.username !== data.loggedInUser);
     this.transferForm = this.fb.group({
-      userId: [data.loggedInUser, Validators.required],
-      username: ['', Validators.required],
+      sourceUserId: [data.loggedInUser, Validators.required],
+      destinationUserId: ['', Validators.required],
        amount: ['',
         [
           Validators.required,
           Validators.min(1),              
           balanceValidator(data.balance) 
         ]
-      ],
-      transactionType: ['debit', Validators.required]
+      ]
     });
   }
 
