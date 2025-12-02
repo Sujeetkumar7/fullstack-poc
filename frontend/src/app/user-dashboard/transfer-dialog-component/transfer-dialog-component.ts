@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { UserResponse } from '../../services/user-service/user'
+import { balanceValidator } from '../../validators/balance-validator';
 
 
 @Component({
@@ -20,13 +21,19 @@ export class TransferDialogComponent {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<TransferDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { users: UserResponse[], loggedInUser: string}
+    @Inject(MAT_DIALOG_DATA) public data: { users: UserResponse[], loggedInUser: string, balance: number}
   ) {
     this.filteredUsers = data.users.filter(user=> user.username !== data.loggedInUser);
     this.transferForm = this.fb.group({
       userId: [data.loggedInUser, Validators.required],
       username: ['', Validators.required],
-      amount: ['', Validators.required],
+       amount: ['',
+        [
+          Validators.required,
+          Validators.min(1),              
+          balanceValidator(data.balance) 
+        ]
+      ],
       transactionType: ['debit', Validators.required]
     });
   }
