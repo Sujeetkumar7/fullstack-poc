@@ -2,6 +2,7 @@ package com.wmn.backend.controller;
 
 import com.wmn.backend.service.AnalyticsService;
 import com.wmn.backend.service.LambdaService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.Map;
 @RequestMapping("/analytics")
 @Slf4j
 @CrossOrigin
+@Tag(name = "Analytics Management", description = "APIs for running analytics and downloading reports")
 public class AnalyticsController {
 
     private final LambdaService lambdaService;
