@@ -8,6 +8,8 @@ public class TransactionDto {
     @NotBlank
     private String userId;
     @NotBlank
+    private String destinationuserId;
+    @NotBlank
     @Pattern(regexp = "DEBIT|CREDIT", message = "transactionType must be DEBIT OR CREDIT")
     private String transactionType;
     private Double amount;
@@ -60,5 +62,13 @@ public class TransactionDto {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getDestinationuserId() {
+        return destinationuserId;
+    }
+
+    public void setDestinationuserId(String destinationuserId) {
+        this.destinationuserId = destinationuserId;
     }
 }

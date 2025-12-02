@@ -1,5 +1,6 @@
 package com.wmn.backend.service;
 
+import com.wmn.backend.dto.TransferDto;
 import com.wmn.backend.dto.UserResponseDto;
 import com.wmn.backend.model.TransactionDto;
 import com.wmn.backend.utils.CommonUtils;
@@ -39,60 +40,16 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
-    public TransactionDto createTransaction(TransactionDto txn) {
-        if (txn == null) throw new IllegalArgumentException("transaction must not be null");
-        if (txn.getTransactionId() == null || txn.getTransactionId().isEmpty()) {
-            txn.setTransactionId(RandomStringUtils.randomAlphanumeric(8));
-        }
-        if (txn.getTimestamp() == null || txn.getTimestamp().isEmpty()) {
-            txn.setTimestamp(CommonUtils.getcurrentTimeStamp());
-        }
-
-        // determine signed amount based on transaction type (credit = add, debit = subtract)
-        double signedAmount = determineSignedAmount(txn);
-
-        PutItemRequest request = PutItemRequest.builder()
-                .tableName(CommonUtils.TRANSACTION)
-                .item(putItem(txn))
-                .build();
-        dynamoDbClient.putItem(request);
-
-        // update user balance if userId present
-        if (txn.getUserId() != null && !txn.getUserId().isEmpty()) {
-            Optional<UserResponseDto> optUser = userService.getUser(txn.getUserId());
-            double current = 0.0;
-            if (optUser.isPresent() && optUser.get().getCurrentBalance() != null) {
-                current = optUser.get().getCurrentBalance();
-            }
-            if(current < signedAmount * -1 && txn.getTransactionType().equalsIgnoreCase("debit")){
-                throw new IllegalArgumentException("Insufficient Balance");
-            }
-            double newBalance = current + signedAmount;
-            userService.updateUserBalance(txn.getUserId(), newBalance);
-            txn.setAmount(newBalance);
-        }
-
-        return txn;
-    }
-
-    private double determineSignedAmount(TransactionDto t) {
-        double amount = t.getAmount();
-        String type = t.getTransactionType();
-        if (type != null) {
-            if ("debit".equalsIgnoreCase(type)) {
-                return -Math.abs(amount);
-            } else if ("credit".equalsIgnoreCase(type)) {
-                return Math.abs(amount);
-            }
-        }
-        return amount;
+    public Map<String, Object> createTransaction(TransferDto txn) {
+        deductAmountFromSource(txn.getSourceUserId(),txn.getDestinationUserId(), txn.getAmount());
+        Optional<Map<String, Object>> response = creditToDestinationUser(txn.getSourceUserId(),txn.getDestinationUserId(), txn.getAmount());
+        return response.orElseThrow(() -> new IllegalArgumentException("Transaction failed"));
     }
 
     private Map<String, AttributeValue> putItem(TransactionDto t) {
         Map<String, AttributeValue> item = new HashMap<>();
         if (t.getTransactionId() != null) item.put("transaction_id", AttributeValue.builder().s(t.getTransactionId()).build());
         log.info("Transaction ID: " + t.getTransactionId());
-        // determine signed amount based on transaction type
         double signedAmount;
         String type = t.getTransactionType(); // expects "credit" or "debit"
         if (type != null) {
@@ -111,7 +68,6 @@ public class TransactionService {
         item.put("transaction_type", AttributeValue.builder().s(type).build());
         item.put("username", AttributeValue.builder().s(t.getUsername()).build());
 
-        // timestamp is treated as string containing a numeric value (as expected by TransactionDto)
         if (t.getTimestamp() != null) {
             item.put("timestamp", AttributeValue.builder().s(t.getTimestamp()).build());
         }
@@ -128,5 +84,64 @@ public class TransactionService {
         if (item.containsKey("amount") && item.get("amount").n() != null) t.setAmount(Double.parseDouble(item.get("amount").n()));
         if (item.containsKey("timestamp") && item.get("timestamp").n() != null) t.setTimestamp(item.get("timestamp").n());
         return t;
+    }
+
+    private UserResponseDto deductAmountFromSource(String sourceUserId, String destinationUserId, double amount) {
+        Optional<UserResponseDto> optUser = userService.getUserByUserId(sourceUserId);
+        if (optUser.isEmpty()) {
+            throw new IllegalArgumentException("Source user not found with userId: " + sourceUserId);
+        }
+        if(optUser.get().getCurrentBalance() < amount){
+            throw new IllegalArgumentException("Insufficient Balance");
+        }
+        UserResponseDto updateUserDto = new UserResponseDto();
+        updateUserDto.setUserId(sourceUserId);
+        updateUserDto.setCurrentBalance(optUser.get().getCurrentBalance() - amount);
+        userService.updateUserBalance(sourceUserId, updateUserDto.getCurrentBalance());
+        addTransactionRecord(sourceUserId, optUser.get().getUsername(), "DEBIT", amount, destinationUserId);
+        return updateUserDto;
+
+    }
+
+    private Optional<Map<String, Object>> creditToDestinationUser(String sourceUserId, String destinationUserId, double amount) {
+        Optional<UserResponseDto> optUser = userService.getUserByUserId(destinationUserId);
+        if (optUser.isEmpty()) {
+            throw new IllegalArgumentException("Destination user not found with userId: " + destinationUserId);
+        }
+        UserResponseDto updateUserDto = new UserResponseDto();
+        updateUserDto.setUserId(destinationUserId);
+        updateUserDto.setCurrentBalance(optUser.get().getCurrentBalance() + amount);
+        userService.updateUserBalance(destinationUserId, updateUserDto.getCurrentBalance());
+        addTransactionRecord(sourceUserId, optUser.get().getUsername(), "CREDIT", amount, destinationUserId);
+
+        return userService.getUserByUserId(sourceUserId).map(user -> {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Transaction success");
+            response.put("sourceUserId", sourceUserId);
+            response.put("sourceUsername", user.getUsername());
+            response.put("destinationUserId", destinationUserId);
+            response.put("destinationUsername", optUser.get().getUsername());
+            return response;
+        });
+
+    }
+
+    private TransactionDto addTransactionRecord(String sourceUserId, String username, String transactionType, double amount, String destinationuserId) {
+        TransactionDto txn = new TransactionDto();
+        txn.setTransactionId(RandomStringUtils.randomAlphanumeric(8));
+        txn.setUserId(sourceUserId);
+        txn.setUsername(username);
+        txn.setTransactionType(transactionType);
+        txn.setAmount(amount);
+        txn.setDestinationuserId(destinationuserId);
+        txn.setTimestamp(CommonUtils.getcurrentTimeStamp());
+
+        PutItemRequest request = PutItemRequest.builder()
+                .tableName(CommonUtils.TRANSACTION)
+                .item(putItem(txn))
+                .build();
+        dynamoDbClient.putItem(request);
+
+        return txn;
     }
 }
