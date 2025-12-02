@@ -11,16 +11,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class DynamoDBUserService {
+public class UserService {
 
     private final DynamoDbClient dynamoDbClient;
     private final String tableName = "user";
 
-    public DynamoDBUserService(DynamoDbClient dynamoDbClient) {
+    public UserService(DynamoDbClient dynamoDbClient) {
         this.dynamoDbClient = dynamoDbClient;
     }
 
-    //Auto-generate userId (U001, U002, ...)
     private String generateUserId() {
         ScanResponse scan = dynamoDbClient.scan(ScanRequest.builder().tableName(tableName).build());
 
@@ -29,10 +28,6 @@ public class DynamoDBUserService {
         return String.format("U%03d", max + 1);
     }
 
-
-    // ------------------------------------------------
-
-    //Auto-generate final username (john → john-1001…)
     private String generateFinalUsername(String base) {
         ScanResponse scan = dynamoDbClient.scan(ScanRequest.builder().tableName(tableName).build());
 
@@ -41,7 +36,6 @@ public class DynamoDBUserService {
         return base + "-" + (maxSuffix + 1);
     }
 
-    //Standardization
     private String normalizeRole(String role) {
         if (role == null) return null;
 
@@ -55,7 +49,6 @@ public class DynamoDBUserService {
         return "USER";
     }
 
-    //Create User
     public UserResponseDto createUser(UserDto dto) {
         String newUserId = generateUserId();
         String finalUsername = generateFinalUsername(dto.getUsername());
@@ -83,7 +76,6 @@ public class DynamoDBUserService {
         return new UserResponseDto(newUserId, finalUsername, 0.0, role);
     }
 
-    //Get User based on Username
     public Optional<UserResponseDto> getUser(String username) {
 
         // Scan the table for the matching username
@@ -116,7 +108,6 @@ public class DynamoDBUserService {
         return Optional.of(mapItemToResponse(item));
     }
 
-    //Update
     public UserResponseDto updateUser(String userId, UpdateUserDto dto) {
 
         Map<String, String> names = new HashMap<>();
@@ -152,7 +143,6 @@ public class DynamoDBUserService {
         return mapItemToResponse(updated.attributes());
     }
 
-    //SOFT DELETE
     public Map<String, Object> deleteUser(String userId) {
 
         // Soft delete: set status = INACTIVE

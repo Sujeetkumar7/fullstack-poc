@@ -3,26 +3,23 @@ package com.wmn.backend.controller;
 import com.wmn.backend.dto.UpdateUserDto;
 import com.wmn.backend.dto.UserDto;
 import com.wmn.backend.dto.UserResponseDto;
-import com.wmn.backend.service.DynamoDBUserService;
+import com.wmn.backend.service.UserService;
 import jakarta.validation.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
 @CrossOrigin
 public class UserController {
 
-    @Autowired
-    private final DynamoDBUserService userService;
+    private final UserService userService;
 
-    public UserController(DynamoDBUserService userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 

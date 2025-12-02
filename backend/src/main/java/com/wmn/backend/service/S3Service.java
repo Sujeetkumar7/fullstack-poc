@@ -1,8 +1,8 @@
 package com.wmn.backend.service;
+import com.wmn.backend.utils.CommonUtils;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
@@ -16,7 +16,7 @@ public class S3Service {
 
     public S3Service() {
         this.s3Client = S3Client.builder()
-                .region(Region.AP_SOUTH_2)
+                .region(CommonUtils.REGION)
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
     }

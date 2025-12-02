@@ -1,5 +1,6 @@
 package com.wmn.backend.utils;
 
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -11,12 +12,16 @@ import java.util.stream.Collectors;
 
 public class CommonUtils {
 
+    public static final String TRANSACTION = "transaction";
+    public static final String BUCKET_NAME = "wmnanalytics";
+    public static final String FOLDER_PREFIX = "analytics-output/";
+    public static final Region REGION = Region.AP_SOUTH_2;
     public static String getcurrentTimeStamp() {
         LocalDateTime now = LocalDateTime.now();
 
-// Define the format
+        // Define the format
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-// Format the current date and time
+        // Format the current date and time
         String formattedNow = now.format(formatter);
 
         return formattedNow;

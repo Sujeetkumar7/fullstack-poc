@@ -1,8 +1,8 @@
 package com.wmn.backend.service;
 
+import com.wmn.backend.utils.CommonUtils;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.SdkBytes;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
 import software.amazon.awssdk.services.lambda.model.InvokeResponse;
@@ -14,7 +14,7 @@ public class LambdaService {
 
     public LambdaService() {
         this.lambdaClient = LambdaClient.builder()
-                .region(Region.AP_SOUTH_2)
+                .region(CommonUtils.REGION)
                 .build();
     }
 
