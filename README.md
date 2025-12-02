@@ -14,7 +14,7 @@ fullstack-poc/
 - Node.js (LTS) & npm
 - Angular CLI (`npm i -g @angular/cli`)
 - Java 21 (or OpenJDK 21)
-- Gradle Wrapper (included from Spring Initializr)
+- Gradle Wrapper (included from Spring Initializer)
 - curl & unzip
 
 ## How to Run
@@ -33,3 +33,4 @@ ng serve
 
 Application runs at: http://localhost:4200
 Backend runs at: http://localhost:8080
+Swagger run at: http://localhost:8080/swagger-ui/index.html#/

@@ -45,7 +45,6 @@ public class UserService {
             return role;
         }
 
-        // Default fallback
         return "USER";
     }
 
@@ -53,7 +52,6 @@ public class UserService {
         String newUserId = generateUserId();
         String finalUsername = generateFinalUsername(dto.getUsername());
 
-        // Validate and assign role
         String role = normalizeRole(dto.getUserRole());
         if (role == null) {
             role = "USER";
@@ -78,7 +76,6 @@ public class UserService {
 
     public Optional<UserResponseDto> getUser(String username) {
 
-        // Scan the table for the matching username
         ScanRequest request = ScanRequest.builder()
                 .tableName(tableName)
                 .filterExpression("username = :u")
@@ -89,15 +86,12 @@ public class UserService {
 
         ScanResponse response = dynamoDbClient.scan(request);
 
-        // No match found
         if (response.count() == 0) {
             return Optional.empty();
         }
 
-        // Get the first matched item
         Map<String, AttributeValue> item = response.items().get(0);
 
-        // Handle soft-delete or inactive status
         AttributeValue statusAttr = item.get("status");
         if (statusAttr != null && statusAttr.s() != null) {
             if ("inactive".equalsIgnoreCase(statusAttr.s())) {
@@ -115,7 +109,6 @@ public class UserService {
         List<String> updates = new ArrayList<>();
 
         if (dto.getUsername() != null) {
-            // DO NOT auto-generate username on update
             names.put("#username", "username");
             updates.add("#username = :username");
             values.put(":username", AttributeValue.fromS(dto.getUsername()));
@@ -145,10 +138,8 @@ public class UserService {
 
     public Map<String, Object> deleteUser(String userId) {
 
-        // Soft delete: set status = INACTIVE
         dynamoDbClient.updateItem(UpdateItemRequest.builder().tableName(tableName).key(Map.of("user_id", AttributeValue.fromS(userId))).updateExpression("SET #s = :inactive").expressionAttributeNames(Map.of("#s", "status")).expressionAttributeValues(Map.of(":inactive", AttributeValue.fromS("INACTIVE"))).build());
 
-        // Return minimal response
         Map<String, Object> response = new HashMap<>();
         response.put("message", "User deleted successfully");
         response.put("userId", userId);
@@ -156,7 +147,6 @@ public class UserService {
         return response;
     }
 
-    //Get all users
     public List<UserResponseDto> listUsers(String status) {
 
         ScanResponse scan = dynamoDbClient.scan(
@@ -167,7 +157,6 @@ public class UserService {
                 .filter(item -> {
                     String itemStatus = item.containsKey("status") ? item.get("status").s() : null;
 
-                    // ❗ Always skip inactive users
                     return !("inactive".equalsIgnoreCase(itemStatus));
                 })
                 .map(this::mapItemToResponse)
@@ -198,5 +187,33 @@ public class UserService {
                 .build();
 
         dynamoDbClient.updateItem(req);
+    }
+
+    public Optional<UserResponseDto> getUserByUserId(String userId) {
+
+        ScanRequest request = ScanRequest.builder()
+                .tableName(tableName)
+                .filterExpression("user_id = :u")
+                .expressionAttributeValues(Map.of(
+                        ":u", AttributeValue.builder().s(userId).build()
+                ))
+                .build();
+
+        ScanResponse response = dynamoDbClient.scan(request);
+
+        if (response.count() == 0) {
+            return Optional.empty();
+        }
+
+        Map<String, AttributeValue> item = response.items().get(0);
+
+        AttributeValue statusAttr = item.get("status");
+        if (statusAttr != null && statusAttr.s() != null) {
+            if ("inactive".equalsIgnoreCase(statusAttr.s())) {
+                throw new RuntimeException("User not found");
+            }
+        }
+
+        return Optional.of(mapItemToResponse(item));
     }
 }

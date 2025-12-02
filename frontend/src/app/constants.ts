@@ -5,7 +5,8 @@ export const ENV = {
 
 export const API_ENDPOINTS = {
   users: '/users',
-  transaction: '/transaction',
   analytics: '/analytics',
   download: '/download',
+  start: '/start',
+  status: '/status',
 };
