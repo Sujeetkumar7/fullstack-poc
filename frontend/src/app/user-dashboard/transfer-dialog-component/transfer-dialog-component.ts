@@ -21,21 +21,23 @@ export class TransferDialogComponent {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<TransferDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { users: UserResponse[], loggedInUser: string, balance: number}
+    @Inject(MAT_DIALOG_DATA) public data: { users: UserResponse[], userId: string, balance: number}
   ) {
-    this.filteredUsers = data.users.filter(user=> user.username !== data.loggedInUser);
-    this.transferForm = this.fb.group({
-      userId: [data.loggedInUser, Validators.required],
-      username: ['', Validators.required],
-       amount: ['',
+    console.log(data.userId);
+    this.filteredUsers = data.users.filter(user=> user?.userId !== data?.userId);
+   this.transferForm = this.fb.group({
+    sourceUserId: [data?.userId, Validators.required],
+    destinationUserId: ['', Validators.required],
+    amount: [
+      '',
         [
-          Validators.required,
-          Validators.min(1),              
-          balanceValidator(data.balance) 
-        ]
-      ],
-      transactionType: ['debit', Validators.required]
-    });
+        Validators.required,
+        Validators.min(1),
+        balanceValidator(data.balance)
+      ]
+    ]
+  });
+
   }
 
   submit(){

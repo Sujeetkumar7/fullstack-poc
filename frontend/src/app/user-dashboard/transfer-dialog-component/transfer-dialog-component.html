@@ -2,15 +2,15 @@
 <div mat-dialog-content class="pt-3">
   <form [formGroup]="transferForm">
     <div class="mb-3">
-      <label for="fromUser" class="form-label fw-500">From User</label>
-      <input id="fromUser" type="text" class="form-control" formControlName="userId" readonly />
+      <label for="sourceUserId" class="form-label fw-500">From User</label>
+      <input id="sourceUserId" type="text" class="form-control" formControlName="sourceUserId" readonly />
     </div>
 
     <div class="mb-3">
-      <label for="toUser" class="form-label fw-500">To User</label>
-      <select id="toUser" class="form-select" formControlName="username">
+      <label for="destinationUserId" class="form-label fw-500">To User</label>
+      <select id="destinationUserId" class="form-select" formControlName="destinationUserId">
         <option value="">-- Select user --</option>
-        <option *ngFor="let user of filteredUsers" [value]="user.username">{{ user.username }}</option>
+        <option *ngFor="let user of filteredUsers" [value]="user.userId">{{ user.username }}</option>
       </select>
     </div>
 
