@@ -82,7 +82,7 @@ export class UserComponent implements AfterViewInit {
     this.userService.getAllUsers().subscribe(users => {
       const dialogRef = this.dialog.open(TransferDialogComponent, {
         width: '400px',
-        data: { users, loggedInUser: this.userId, balance: this.balance }
+        data: { users, userId: this.userId, balance: this.balance }
       });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
