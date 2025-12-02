@@ -41,9 +41,10 @@ public class TransactionService {
     }
 
     public Map<String, Object> createTransaction(TransferDto txn) {
-        deductAmountFromSource(txn.getSourceUserId(),txn.getDestinationUserId(), txn.getAmount());
-        Optional<Map<String, Object>> response = creditToDestinationUser(txn.getSourceUserId(),txn.getDestinationUserId(), txn.getAmount());
-        return response.orElseThrow(() -> new IllegalArgumentException("Transaction failed"));
+        Optional<UserResponseDto> sourceUserDetails = userService.getUserByUserId(txn.getSourceUserId());
+        Optional<UserResponseDto> destinationUserDetails = userService.getUserByUserId(txn.getDestinationUserId());
+        deductAmountFromSource(sourceUserDetails.get(),destinationUserDetails.get(), txn.getAmount());
+        return creditToDestinationUser(sourceUserDetails.get(),destinationUserDetails.get(), txn.getAmount());
     }
 
     private Map<String, AttributeValue> putItem(TransactionDto t) {
@@ -52,25 +53,14 @@ public class TransactionService {
         log.info("Transaction ID: " + t.getTransactionId());
         double signedAmount;
         String type = t.getTransactionType(); // expects "credit" or "debit"
-        if (type != null) {
-            if ("debit".equalsIgnoreCase(type)) {
-                signedAmount = -Math.abs(t.getAmount());
-            } else if ("credit".equalsIgnoreCase(type)) {
-                signedAmount = Math.abs(t.getAmount());
-            } else {
-                signedAmount = t.getAmount();
-            }
-        } else {
-            signedAmount = t.getAmount();
-        }
-        item.put("amount", AttributeValue.builder().n(Double.toString(signedAmount)).build());
+
+        item.put("amount", AttributeValue.builder().n(Double.toString(t.getAmount())).build());
         item.put("user_id", AttributeValue.builder().s(t.getUserId()).build());
         item.put("transaction_type", AttributeValue.builder().s(type).build());
-        item.put("username", AttributeValue.builder().s(t.getUsername()).build());
+        item.put("from_username", AttributeValue.builder().s(t.getFromUsername()).build());
+        item.put("to_username", AttributeValue.builder().s(t.getToUsername()).build());
+        item.put("timestamp", AttributeValue.builder().s(t.getTimestamp()).build());
 
-        if (t.getTimestamp() != null) {
-            item.put("timestamp", AttributeValue.builder().s(t.getTimestamp()).build());
-        }
         return item;
     }
 
@@ -79,61 +69,56 @@ public class TransactionService {
         TransactionDto t = new TransactionDto();
         if (item.containsKey("transaction_id") && item.get("transaction_id").s() != null) t.setTransactionId(item.get("transaction_id").s());
         if (item.containsKey("transaction_type") && item.get("transaction_type").s() != null) t.setTransactionType(item.get("transaction_type").s());
-        if (item.containsKey("username") && item.get("username").s() != null) t.setUsername(item.get("username").s());
+        if (item.containsKey("from_username") && item.get("from_username").s() != null) t.setFromUsername(item.get("from_username").s());
         if (item.containsKey("user_id") && item.get("user_id").s() != null) t.setUserId(item.get("user_id").s());
         if (item.containsKey("amount") && item.get("amount").n() != null) t.setAmount(Double.parseDouble(item.get("amount").n()));
-        if (item.containsKey("timestamp") && item.get("timestamp").n() != null) t.setTimestamp(item.get("timestamp").n());
+        if (item.containsKey("timestamp") && item.get("timestamp").s() != null) t.setTimestamp(item.get("timestamp").s());
+        if (item.containsKey("to_username") && item.get("to_username").s() != null) t.setToUsername(item.get("to_username").s());
         return t;
     }
 
-    private UserResponseDto deductAmountFromSource(String sourceUserId, String destinationUserId, double amount) {
-        Optional<UserResponseDto> optUser = userService.getUserByUserId(sourceUserId);
-        if (optUser.isEmpty()) {
-            throw new IllegalArgumentException("Source user not found with userId: " + sourceUserId);
-        }
-        if(optUser.get().getCurrentBalance() < amount){
+    private UserResponseDto deductAmountFromSource(UserResponseDto sourceUserDetails, UserResponseDto destinationUserDetails, double amount) {
+        String sourceUserId = sourceUserDetails.getUserId();
+        if(sourceUserDetails.getCurrentBalance() < amount){
             throw new IllegalArgumentException("Insufficient Balance");
         }
         UserResponseDto updateUserDto = new UserResponseDto();
         updateUserDto.setUserId(sourceUserId);
-        updateUserDto.setCurrentBalance(optUser.get().getCurrentBalance() - amount);
+        updateUserDto.setCurrentBalance(sourceUserDetails.getCurrentBalance() - amount);
         userService.updateUserBalance(sourceUserId, updateUserDto.getCurrentBalance());
-        addTransactionRecord(sourceUserId, optUser.get().getUsername(), "DEBIT", amount, destinationUserId);
+        addTransactionRecord(sourceUserId, sourceUserDetails.getUsername(), "DEBIT", amount, destinationUserDetails.getUsername());
         return updateUserDto;
 
     }
 
-    private Optional<Map<String, Object>> creditToDestinationUser(String sourceUserId, String destinationUserId, double amount) {
-        Optional<UserResponseDto> optUser = userService.getUserByUserId(destinationUserId);
-        if (optUser.isEmpty()) {
-            throw new IllegalArgumentException("Destination user not found with userId: " + destinationUserId);
-        }
+    private Map<String, Object> creditToDestinationUser(UserResponseDto sourceUserDetails, UserResponseDto destinationUserDetails, double amount) {
+        String destinationUserId = destinationUserDetails.getUserId();
         UserResponseDto updateUserDto = new UserResponseDto();
         updateUserDto.setUserId(destinationUserId);
-        updateUserDto.setCurrentBalance(optUser.get().getCurrentBalance() + amount);
+        updateUserDto.setCurrentBalance(destinationUserDetails.getCurrentBalance() + amount);
         userService.updateUserBalance(destinationUserId, updateUserDto.getCurrentBalance());
-        addTransactionRecord(sourceUserId, optUser.get().getUsername(), "CREDIT", amount, destinationUserId);
+        addTransactionRecord(destinationUserId, destinationUserDetails.getUsername(), "CREDIT", amount, sourceUserDetails.getUsername());
 
-        return userService.getUserByUserId(sourceUserId).map(user -> {
+
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Transaction success");
-            response.put("sourceUserId", sourceUserId);
-            response.put("sourceUsername", user.getUsername());
+            response.put("sourceUserId", sourceUserDetails.getUserId());
+            response.put("sourceUsername", sourceUserDetails.getUsername());
             response.put("destinationUserId", destinationUserId);
-            response.put("destinationUsername", optUser.get().getUsername());
+            response.put("destinationUsername", destinationUserDetails.getUsername());
             return response;
-        });
+
 
     }
 
-    private TransactionDto addTransactionRecord(String sourceUserId, String username, String transactionType, double amount, String destinationuserId) {
+    private TransactionDto addTransactionRecord(String sourceUserId, String username, String transactionType, double amount, String destinationUserName) {
         TransactionDto txn = new TransactionDto();
         txn.setTransactionId(RandomStringUtils.randomAlphanumeric(8));
         txn.setUserId(sourceUserId);
-        txn.setUsername(username);
+        txn.setFromUsername(username);
         txn.setTransactionType(transactionType);
         txn.setAmount(amount);
-        txn.setDestinationuserId(destinationuserId);
+        txn.setToUsername(destinationUserName);
         txn.setTimestamp(CommonUtils.getcurrentTimeStamp());
 
         PutItemRequest request = PutItemRequest.builder()
