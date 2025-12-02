@@ -97,7 +97,7 @@ public class TransactionService {
         updateUserDto.setUserId(destinationUserId);
         updateUserDto.setCurrentBalance(destinationUserDetails.getCurrentBalance() + amount);
         userService.updateUserBalance(destinationUserId, updateUserDto.getCurrentBalance());
-        addTransactionRecord(destinationUserId, destinationUserDetails.getUsername(), "CREDIT", amount, sourceUserDetails.getUsername());
+        addTransactionRecord(destinationUserId, sourceUserDetails.getUsername(), "CREDIT", amount, destinationUserDetails.getUsername());
 
 
             Map<String, Object> response = new HashMap<>();
