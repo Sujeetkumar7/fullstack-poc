@@ -20,24 +20,29 @@
         <button
           *ngIf="state.isReportReady"
           class="btn btn-outline-primary btn-sm mb-3"
-          (click)="downloadReport(state.csvContent)"
+          (click)="downloadReport(state.xlsxBlob)"
         >
           Download Report
         </button>
 
-        <div *ngIf="state.isReportReady && state.tableData.length" class="table-responsive">
-          <table class="table table-bordered table-sm">
-            <thead class="table-light">
-              <tr>
-                <th *ngFor="let h of state.headers">{{ h }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let row of state.tableData">
-                <td *ngFor="let col of row">{{ col }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div *ngIf="state.isReportReady">
+          <div *ngFor="let sheet of state.sheets" class="mb-4">
+            <h5 class="mb-2">{{ sheet.name }}</h5>
+            <div class="table-responsive" *ngIf="sheet.rows.length">
+              <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                  <tr>
+                    <th *ngFor="let h of sheet.headers">{{ h }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of sheet.rows">
+                    <td *ngFor="let col of row">{{ col }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </ng-container>
     </div>

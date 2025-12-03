@@ -2,13 +2,17 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, interval, Subscription, of } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { AnalyticsService } from './analytics';
+import * as XLSX from 'xlsx';
 
 interface AnalyticsState {
   isRunning: boolean;
   statusMessage: string;
-  csvContent: string | null;
-  headers: string[];
-  tableData: string[][];
+  xlsxBlob: Blob | null;
+  sheets: Array<{
+    name: string;
+    headers: string[];
+    rows: string[][];
+  }>;
   isReportReady: boolean;
 }
 
@@ -17,9 +21,8 @@ export class AnalyticsStateService {
   private stateSubject = new BehaviorSubject<AnalyticsState>({
     isRunning: false,
     statusMessage: '',
-    csvContent: null,
-    headers: [],
-    tableData: [],
+    xlsxBlob: null,
+    sheets: [],
     isReportReady: false,
   });
 
@@ -34,9 +37,8 @@ export class AnalyticsStateService {
     this.updateState({
       isRunning: true,
       statusMessage: 'Analytics is running...',
-      csvContent: null,
-      headers: [],
-      tableData: [],
+      xlsxBlob: null,
+      sheets: [],
       isReportReady: false,
     });
 
@@ -77,24 +79,44 @@ export class AnalyticsStateService {
 
   private fetchDownloadUrl() {
     this.analyticsService.getDownloadUrl().subscribe({
-      next: (csv) => {
-        const rows = csv
-          .trim()
-          .split('\n')
-          .map((r) => r.split(','));
+      next: async (blob: Blob) => {
+        const arrayBuffer = await blob.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+        const sheets = workbook.SheetNames.map((name) => {
+          const sheet = workbook.Sheets[name];
+          const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+          return {
+            name: this.formatSheetName(name),
+            headers: rows[0] || [],
+            rows: rows.slice(1) || [],
+          };
+        });
+
         this.updateState({
-          csvContent: csv,
-          headers: rows[0],
-          tableData: rows.slice(1),
+          xlsxBlob: blob,
+          sheets,
           isReportReady: true,
           isRunning: false,
           statusMessage: 'Analytics completed. Report is ready.',
         });
       },
       error: () => {
-        this.updateState({ isRunning: false, statusMessage: 'Failed to fetch report.' });
+        this.updateState({
+          isRunning: false,
+          statusMessage: 'Failed to fetch report.',
+        });
       },
     });
+  }
+
+  private formatSheetName(name: string): string {
+    return name
+      .replace(/_/g, ' ')
+      .replace(/\s+/g, ' ')
+      .replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substring(1).toLowerCase())
+      .trim();
   }
 
   private updateState(partial: Partial<AnalyticsState>) {
