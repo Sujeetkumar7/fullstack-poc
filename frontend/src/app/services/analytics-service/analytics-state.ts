@@ -87,10 +87,19 @@ export class AnalyticsStateService {
           const sheet = workbook.Sheets[name];
           const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
+          const processedRows = rows.map((row) =>
+            row.map((cell) => {
+              if (typeof cell === 'number' && cell > 30000 && cell < 60000) {
+                return this.excelDateToJSDate(cell);
+              }
+              return cell;
+            })
+          );
+
           return {
             name: this.formatSheetName(name),
-            headers: rows[0] || [],
-            rows: rows.slice(1) || [],
+            headers: processedRows[0] || [],
+            rows: processedRows.slice(1) || [],
           };
         });
 
@@ -117,6 +126,20 @@ export class AnalyticsStateService {
       .replace(/\s+/g, ' ')
       .replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substring(1).toLowerCase())
       .trim();
+  }
+
+  private excelDateToJSDate(serial: number): string {
+    if (typeof serial !== 'number') return serial as any;
+
+    const utc_days = Math.floor(serial - 25569);
+    const utc_value = utc_days * 86400;
+    const dateInfo = new Date(utc_value * 1000);
+
+    const year = dateInfo.getFullYear();
+    const month = String(dateInfo.getMonth() + 1).padStart(2, '0');
+    const day = String(dateInfo.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 
   private updateState(partial: Partial<AnalyticsState>) {
