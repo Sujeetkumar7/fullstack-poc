@@ -51,7 +51,7 @@ export class UserComponent implements AfterViewInit {
     this.transactions$ = this.refresh$.pipe(
       switchMap(() => {
         this.loading$.next(true);
-        return this.transactionService.getTransactionHistory(this.userName).pipe(
+        return this.transactionService.getTransactionHistory(this.userId).pipe(
           finalize(() => this.loading$.next(false))
         );
       }),

@@ -50,7 +50,7 @@ public class AnalyticsController {
         if (fileData != null && fileData.length > 0) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDisposition(ContentDisposition.parse("attachment; filename=Analytical_Report.csv"));
+            headers.setContentDisposition(ContentDisposition.parse("attachment; filename=Analytical_Report.xlsx"));
             headers.setContentLength(fileData.length);
 
             log.info("Download Ended.");

@@ -60,7 +60,7 @@ public class UserService {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("user_id", AttributeValue.fromS(newUserId));
         item.put("username", AttributeValue.fromS(finalUsername));
-        item.put("current_balance", AttributeValue.fromN("0.0"));
+        item.put("current_balance", AttributeValue.fromN(String.valueOf(dto.getCurrentBalance())));
         item.put("user_role", AttributeValue.fromS(role));
         item.put("status", AttributeValue.fromS("ACTIVE"));
 
