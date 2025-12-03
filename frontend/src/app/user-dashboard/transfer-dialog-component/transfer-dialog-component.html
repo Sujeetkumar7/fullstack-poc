@@ -3,7 +3,12 @@
   <form [formGroup]="transferForm">
     <div class="mb-3">
       <label for="sourceUserId" class="form-label fw-500">From User</label>
-      <input id="sourceUserId" type="text" class="form-control" formControlName="sourceUserId" readonly />
+      <input id="sourceUserName"
+       type="text"
+       class="form-control"
+       [value]="getUsernameById(data.userId)"
+       readonly />
+
     </div>
 
     <div class="mb-3">

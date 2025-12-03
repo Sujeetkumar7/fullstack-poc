@@ -40,9 +40,15 @@ export class TransferDialogComponent {
 
   }
 
+  getUsernameById(userId: string): string {
+    const user = this.data.users.find(u => u.userId === userId);
+    return user ? user.username : '';
+  }
+
   submit(){
     if(this.transferForm.valid){
       this.dialogRef.close(this.transferForm.value);
     }
   }
+  
 }
