@@ -13,7 +13,7 @@
       <div *ngIf="!loading && users.length > 0">
         <app-table
           [data]="users"
-          [displayedColumns]="['userId', 'username', 'userRole']"
+          [displayedColumns]="['userId', 'username', 'userRole', 'currentBalance']"
           (edit)="onEditUser($event)"
           (delete)="confirmDelete($event)"
           [columnNames]="tableColoumnNames"
@@ -26,7 +26,13 @@
     <form [formGroup]="userForm">
       <div class="mb-3">
         <label for="username" class="form-label">Username</label>
-        <input id="username" type="text" class="form-control" formControlName="username" />
+        <input
+          id="username"
+          type="text"
+          class="form-control"
+          formControlName="username"
+          [disabled]="editMode"
+        />
         <div
           *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched"
           class="text-danger mt-1"
@@ -41,6 +47,17 @@
             Spaces are not allowed in username.</small
           >
         </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="currentBalance" class="form-label">Current Balance</label>
+        <input
+          id="currentBalance"
+          type="number"
+          class="form-control"
+          formControlName="currentBalance"
+          placeholder="Enter amount"
+        />
       </div>
 
       <div class="mb-3">
