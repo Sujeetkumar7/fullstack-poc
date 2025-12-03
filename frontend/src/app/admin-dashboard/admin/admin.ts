@@ -20,9 +20,9 @@ import { UserService, UserResponse, UserRequest } from '../../services/user-serv
 import { Spinner } from '../../common/spinner/spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 interface User {
-  currentBalance: number;
   userId: string;
   username: string;
+  currentBalance: number;
   userRole: string;
 }
 @Component({
@@ -65,6 +65,7 @@ export class Admin implements OnInit {
     userId: 'User ID',
     username: 'User Name',
     userRole: 'User Role',
+    currentBalance: 'Current Balance',
   };
 
   constructor(
@@ -80,6 +81,7 @@ export class Admin implements OnInit {
     this.userForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^\S+$/)]],
       role: ['USER', Validators.required],
+      currentBalance: [0],
     });
   }
 
@@ -103,6 +105,7 @@ export class Admin implements OnInit {
 
   openAddUser() {
     this.userForm.reset();
+    this.userForm.get('username')?.enable();
     this.userForm.markAsPristine();
     this.userForm.markAsUntouched();
 
@@ -127,6 +130,7 @@ export class Admin implements OnInit {
     const requestBody: UserRequest = {
       username: this.userForm.value.username,
       userRole: this.userForm.value.role,
+      currentBalance: this.userForm.value.currentBalance || 0,
     };
 
     this.userService.createUser(requestBody).subscribe({
@@ -134,6 +138,7 @@ export class Admin implements OnInit {
         const newUser = {
           ...response,
           userRole: this.userForm.value.role,
+          currentBalance: this.userForm.value.currentBalance,
         };
 
         this.users = [...this.users, newUser];
@@ -179,7 +184,13 @@ export class Admin implements OnInit {
     this.editMode = true;
     this.editUserId = user.userId;
 
-    this.userForm.patchValue({ username: user.username, role: user.userRole });
+    this.userForm.patchValue({
+      username: user.username,
+      role: user.userRole,
+      currentBalance: user.currentBalance || 0,
+    });
+
+    this.userForm.get('username')?.disable();
 
     const dialogRef = this.dialog.open(Dialog, {
       width: '400px',
@@ -198,11 +209,13 @@ export class Admin implements OnInit {
   }
 
   handleEditUser(dialogRef: any, user: User) {
+    const raw = this.userForm.getRawValue();
+
     const updatedUser: UserResponse = {
       userId: user.userId,
-      username: this.userForm.value.username,
-      currentBalance: user.currentBalance,
-      userRole: this.userForm.value.role,
+      username: raw.username,
+      currentBalance: raw.currentBalance || 0,
+      userRole: raw.role,
     };
 
     this.userService.updateUser(updatedUser.userId, updatedUser).subscribe({

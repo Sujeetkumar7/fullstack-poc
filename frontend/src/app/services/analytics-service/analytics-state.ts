@@ -53,7 +53,7 @@ export class AnalyticsStateService {
   }
 
   private startPollingForStatus(jobId: string) {
-    this.pollSubscription = interval(60000)
+    this.pollSubscription = interval(30000)
       .pipe(
         switchMap(() =>
           this.analyticsService

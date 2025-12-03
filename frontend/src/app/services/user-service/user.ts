@@ -6,6 +6,7 @@ import { ENV, API_ENDPOINTS } from '../../constants';
 export interface UserRequest {
   username: string;
   userRole: string;
+  currentBalance: string;
 }
 
 export interface UserResponse {
