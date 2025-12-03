@@ -21,9 +21,9 @@ export class AnalyticsService {
     );
   }
 
-  getDownloadUrl(): Observable<string> {
+  getDownloadUrl(): Observable<Blob> {
     return this.http.get(`${this.apiUrl + API_ENDPOINTS.analytics + API_ENDPOINTS.download}`, {
-      responseType: 'text',
+      responseType: 'blob',
     });
   }
 }
