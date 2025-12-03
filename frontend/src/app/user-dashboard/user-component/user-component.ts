@@ -97,14 +97,16 @@ export class UserComponent implements AfterViewInit {
         width: '400px',
         data: { users, userId: this.userId, balance: this.balance }
       });
+      
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
+          const destinationUserDetails = users.find(user=> user.userId === result.destinationUserId);
           this.transactionService.saveTransaction(result).subscribe({
             next: () => {
               this.refresh();        // reload transactions from backend
               this.refreshBalance(); // reload balance
               this.snackBar.open(
-                `₹${result.amount} transferred to ${result.username}`,
+                `₹${result.amount} transferred to ${destinationUserDetails?.username}`,
                 '',
                 { duration: 3000, panelClass: ['success-snackbar'], horizontalPosition: 'center', verticalPosition: 'bottom' }
               );
