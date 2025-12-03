@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { finalize, switchMap, startWith, shareReplay } from 'rxjs/operators';
+import { finalize, switchMap, startWith, shareReplay, map } from 'rxjs/operators';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { TransactionService } from '../../services/transaction-service/transaction-service';
 import { UserService, UserResponse } from '../../services/user-service/user';
@@ -31,7 +31,16 @@ export class UserComponent implements AfterViewInit {
   transactions$!: Observable<any[]>;
   loading$ = new BehaviorSubject<boolean>(false);
 
-  displayedColumns = ['transactionId', 'userId','transactionType', 'amount', 'fromUsername','toUsername','timestamp',];
+  displayedColumns = ['transactionId', 'userId','transactionType', 'amount', 'fromUsername','toUsername','timestamp'];
+  tableColoumnNames: { [key: string]: string } = {
+    transactionId: 'Transaction ID',
+    userId: 'User ID',
+    transactionType: 'Transaction Type',
+    amount: 'Amount',
+    fromUsername: 'From User',
+    toUsername: 'To User',
+    timestamp: 'Timestamp'
+  };
 
   constructor(
     private transactionService: TransactionService,
@@ -49,15 +58,19 @@ export class UserComponent implements AfterViewInit {
     if (!this.userName) return;
     // Transactions stream with refresh trigger
     this.transactions$ = this.refresh$.pipe(
-      switchMap(() => {
-        this.loading$.next(true);
-        return this.transactionService.getTransactionHistory(this.userId).pipe(
-          finalize(() => this.loading$.next(false))
-        );
-      }),
-      startWith([]),
-      shareReplay(1)
+  switchMap(() => {
+    this.loading$.next(true);
+    return this.transactionService.getTransactionHistory(this.userId).pipe(
+      finalize(() => this.loading$.next(false)),
+      // sort transactions by timestamp descending
+      map(transactions =>
+        transactions.sort((a:any, b:any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      )
     );
+  }),
+  startWith([]),
+  shareReplay(1)
+);
     // Initial load
     this.refresh();
     this.refreshBalance();
