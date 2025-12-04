@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -12,4 +12,12 @@ import { RouterModule } from '@angular/router';
 export class Sidebar {
   @Input() menuItems: { label: string; icon: string; route: string }[] = [];
   @Input() sidebarOpen: boolean = false;
+
+  @Output() closeSidebar = new EventEmitter<void>();
+
+  onItemClick() {
+    if (window.innerWidth <= 768) {
+      this.closeSidebar.emit();
+    }
+  }
 }

@@ -1,0 +1,34 @@
+<div class="container-fluid p-4">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Stocks List</h5>
+    </div>
+
+    <div class="card-body">
+      <!-- Spinner -->
+      <app-spinner *ngIf="loading" [size]="23" color="primary"></app-spinner>
+
+      <!-- Content -->
+      <ng-container *ngIf="!loading">
+        <!-- Table when stocks exist -->
+        <app-table
+          *ngIf="stocks.length > 0; else noData"
+          [data]="stocks"
+          [displayedColumns]="displayedColumns"
+          [columnNames]="columnNames"
+          [showFilter]="true"
+          [showActions]="false"
+        >
+        </app-table>
+
+        <!-- No Data -->
+        <ng-template #noData>
+          <div class="alert alert-info mb-0">
+            <strong>No stock data available</strong>
+            <p class="mb-0 mt-1">Unable to fetch stocks at the moment.</p>
+          </div>
+        </ng-template>
+      </ng-container>
+    </div>
+  </div>
+</div>

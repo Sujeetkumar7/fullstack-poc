@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { Sidebar } from '../../common/sidebar/sidebar';
 import { Header } from '../../common/header/header';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-admin-layout',
-  imports: [Sidebar, Header],
+  imports: [Sidebar, Header, RouterOutlet],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.scss',
 })

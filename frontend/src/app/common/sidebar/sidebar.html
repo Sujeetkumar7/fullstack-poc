@@ -7,6 +7,7 @@
           [routerLink]="item.route"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
+          (click)="onItemClick()"
         >
           <i class="bi {{ item.icon }} me-2"></i> {{ item.label }}
         </div>
