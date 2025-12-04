@@ -5,20 +5,40 @@ import { Analytics } from './admin-dashboard/analytics/analytics';
 import { UserComponent } from './user-dashboard/user-component/user-component';
 import { AuthGuard } from './services/auth-service/auth-guard';
 import { UserLayout } from './user-dashboard/user-layout/user-layout';
+import { AdminLayout } from './admin-dashboard/admin-layout/admin-layout';
+import { Stocks } from './user-dashboard/stocks/stocks';
 
 export const routes: Routes = [
   { path: '', component: Login },
-  { path: 'admin', component: Admin, canActivate: [AuthGuard] },
-  { path: 'admin/analytics', component: Analytics, canActivate: [AuthGuard] },
-  { path: 'user',
+  {
+    path: 'admin',
+    component: AdminLayout,
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        component: Admin,
+      },
+      {
+        path: 'analytics',
+        component: Analytics,
+      },
+    ],
+  },
+  {
+    path: 'user',
     component: UserLayout,
     canActivate: [AuthGuard],
     children: [
       {
         path: '',
-        component: UserComponent
-      }
-    ]
+        component: UserComponent,
+      },
+      {
+        path: 'stocks',
+        component: Stocks,
+      },
+    ],
   },
   { path: '**', redirectTo: '' },
 ];

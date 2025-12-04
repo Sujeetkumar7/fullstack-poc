@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminLayout } from '../admin-layout/admin-layout';
 import { AnalyticsStateService } from '../../services/analytics-service/analytics-state';
 
 @Component({
   selector: 'app-analytics',
   standalone: true,
-  imports: [AdminLayout, CommonModule],
+  imports: [CommonModule],
   templateUrl: './analytics.html',
   styleUrls: ['./analytics.scss'],
 })

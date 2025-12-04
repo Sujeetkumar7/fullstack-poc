@@ -15,7 +15,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Table } from '../../common/table/table';
 import { Dialog } from '../../common/dialog/dialog';
-import { AdminLayout } from '../admin-layout/admin-layout';
 import { UserService, UserResponse, UserRequest } from '../../services/user-service/user';
 import { Spinner } from '../../common/spinner/spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -40,7 +39,6 @@ interface User {
     MatInputModule,
     Spinner,
     Table,
-    AdminLayout,
     MatSnackBarModule,
   ],
   templateUrl: './admin.html',
