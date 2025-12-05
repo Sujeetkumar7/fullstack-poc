@@ -102,7 +102,7 @@ export class Table implements AfterViewInit {
   formatValue(col: string, value: any) {
     const decimalColumns = ['Ltp', 'High1Yr', 'Low1Yr'];
     const zeroDecimalColumns = ['Volume'];
-    const percentColumns = ['PPerchange', 'PricePerchng1mon'];
+    const percentColumns = ['PPerchange', 'PricePerchng1mon', 'PricePerchng1year', 'ROCE'];
     const currencyColumns = ['Mcap'];
 
     if (currencyColumns.includes(col)) {
@@ -125,7 +125,7 @@ export class Table implements AfterViewInit {
   }
 
   getColorClass(col: string, value: any): string {
-    const percentColumns = ['PPerchange', 'PricePerchng1mon'];
+    const percentColumns = ['PPerchange', 'PricePerchng1mon', 'PricePerchng1year', 'ROCE'];
 
     if (!percentColumns.includes(col)) return '';
 

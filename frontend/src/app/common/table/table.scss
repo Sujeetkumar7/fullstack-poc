@@ -30,18 +30,23 @@
   white-space: nowrap;
   width: 200px;
   min-width: 200px;
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.10);
+  box-shadow: 2px 0 4px rgba(0,0,0,0.1);
 }
 
 .sticky-enabled .sticky-col::after {
   content: "";
   position: absolute;
   top: 0;
-  right: -1px;
-  width: 2px;
+  right: 0;          
+  width: 1px;
   height: 100%;
   background-color: #d9d9d9;
   z-index: 10;
+}
+
+.sticky-enabled th.sticky-col,
+.sticky-enabled td.sticky-col {
+  border-right: none !important;
 }
 
 .sticky-enabled .fixed-col {
@@ -57,48 +62,24 @@
   table-layout: fixed !important;
 }
 
-:host ::ng-deep .table mat-header-row th.mat-header-cell {
-  background-color: #f0f8ff !important;
-  border-top: 2px solid #d9d9d9 !important;
-  border-bottom: 2px solid #d9d9d9 !important;
-  font-weight: bold;
-  color: #000;
+:host ::ng-deep .sticky-enabled .mat-mdc-header-cell,
+:host ::ng-deep .sticky-enabled .mdc-data-table__header-cell {
+  background: #fffbf8 !important;
+  border-style: solid !important;
+  border-width: 1px !important;
+  border-color: #ffead9 #fffbf8 !important;
+  font-weight: bold !important;
+  color: #000 !important;
 }
 
 
-:host ::ng-deep .sticky-enabled .sticky-col {
-  position: sticky;
-  left: 0;
-  background: #fff;
-  z-index: 5;
-  white-space: nowrap;
-  width: 200px;
-  min-width: 200px;
-  box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+:host ::ng-deep .sticky-enabled .mat-mdc-row:hover .mat-mdc-cell,
+:host ::ng-deep .sticky-enabled .mdc-data-table__row:hover .mdc-data-table__cell {
+  background: #fffbf8 !important;
 }
 
-:host ::ng-deep .sticky-enabled .sticky-col::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: -1px;
-  width: 2px;
-  height: 100%;
-  background-color: #d9d9d9;
-  z-index: 10;
-}
-
-:host ::ng-deep .sticky-enabled .fixed-col {
-  white-space: nowrap;
-  width: 140px;
-  min-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-left: 8px;
-}
-
-:host ::ng-deep .sticky-enabled table {
-  table-layout: fixed !important;
+:host ::ng-deep .sticky-enabled .mat-mdc-row:hover .sticky-col {
+  background: #fffbf8 !important;
 }
 
 :host ::ng-deep .table mat-row:last-child {
