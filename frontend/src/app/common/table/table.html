@@ -37,7 +37,7 @@
           (mouseleave)="hoveredRow = null"
         >
           <ng-container *ngIf="col === 'Ltp' && hoveredRow === element; else defaultValue">
-            <button class="btn btn-sm btn-success invest-btn" (click)="onInvest(element)">
+            <button class="btn btn-sm btn-success invest-btn" (click)="invest.emit(element)">
               Invest
             </button>
           </ng-container>

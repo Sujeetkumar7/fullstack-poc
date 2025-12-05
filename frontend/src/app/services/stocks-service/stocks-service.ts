@@ -6,6 +6,7 @@ import { ENV } from '../../constants';
 @Injectable({ providedIn: 'root' })
 export class StocksService {
   private apiUrl = ENV.stocksApiUrl;
+  private baseUrl = ENV.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -45,5 +46,9 @@ export class StocksService {
     });
 
     return this.http.post(this.apiUrl, body, { headers });
+  }
+
+  saveInvestment(body:any):Observable<any>{
+    return this.http.post<any>(`${this.baseUrl}/stocks/invest`,body);
   }
 }

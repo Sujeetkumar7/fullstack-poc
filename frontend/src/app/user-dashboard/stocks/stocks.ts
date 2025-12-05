@@ -5,17 +5,24 @@ import { Table } from '../../common/table/table';
 import { Spinner } from '../../common/spinner/spinner';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { InvestingDialogComponent } from '../investing-dialog-component/investing-dialog-component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
   selector: 'app-stocks',
   templateUrl: './stocks.html',
-  imports: [CommonModule, Table, Spinner],
+  imports: [CommonModule, Table, Spinner, MatDialogModule],
   styleUrls: ['./stocks.scss'],
 })
 export class Stocks implements OnInit {
   stocks: any[] = [];
   loading = false;
   refreshSub!: Subscription;
+  userId :string ='';
+  balance = 0;
+  userName: string ='';
 
   displayedColumns = [
     'DispSym',
@@ -43,7 +50,13 @@ export class Stocks implements OnInit {
     ROCE: 'ROCE',
   };
 
-  constructor(private stocksService: StocksService, private cd: ChangeDetectorRef) {}
+  constructor(
+    private stocksService: StocksService, 
+    private cd: ChangeDetectorRef,
+    private dialog: MatDialog,
+    private snackbar: MatSnackBar,
+    private authService: AuthService,
+  ) {}
 
   ngOnInit() {
     this.loading = true;
@@ -60,10 +73,12 @@ export class Stocks implements OnInit {
       });
   }
 
-  ngOnDestroy() {
-    if (this.refreshSub) {
-      this.refreshSub.unsubscribe();
-    }
+
+  ngAfterViewInit(): void {
+       const user = this.authService.getUserDetails();
+       this.userId = user?.userId ?? '';
+       this.balance = user?.currentBalance ?? 0;
+       this.userName = user?.username ?? '';
   }
 
   loadStocks() {
@@ -82,4 +97,60 @@ export class Stocks implements OnInit {
       },
     });
   }
+  openInvestingDialog(row: any) {
+  const dialogRef = this.dialog.open(InvestingDialogComponent, {
+    width: '420px',
+    // panelClass: 'custom-invest-dialog', // optional styling
+    data: {
+      row,
+      userId: this.userId,
+      balance: this.balance,
+      userName: this.userName,
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      this.stocksService.saveInvestment(result).subscribe({
+        next: () => {
+          const user = this.authService.getUserDetails();
+          this.balance = user?.currentBalance ?? this.balance;
+
+          this.snackbar.open(
+            `₹${result.amount} ${result.transactionType === 'buy' ? 'invested in' : 'sold from'} ${row?.DispSym}`,
+            '',
+            {
+              duration: 3000,
+              panelClass: ['success-snackbar'],
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            }
+          );
+        },
+        error: (err) => {
+          console.error(err);
+          this.loading = false;
+          this.cd.markForCheck();
+          this.snackbar.open(
+            'Transaction failed. Please try again later.',
+            '',
+            {
+              duration: 3000,
+              panelClass: ['error-snackbar'],
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            }
+          );
+        }
+      });
+    }
+  });
 }
+   
+ngOnDestroy() {
+    if (this.refreshSub) {
+      this.refreshSub.unsubscribe();
+    }
+  }
+}
+
