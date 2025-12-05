@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ENV } from '../../constants';
 
 @Injectable({ providedIn: 'root' })
 export class StocksService {
-  private apiUrl = 'https://ow-scanx-analytics.dhan.co/customscan/fetchdt';
+  private apiUrl = ENV.stocksApiUrl;
 
   constructor(private http: HttpClient) {}
 
