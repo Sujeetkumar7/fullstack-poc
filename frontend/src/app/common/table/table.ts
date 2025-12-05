@@ -33,6 +33,9 @@ export class Table implements AfterViewInit {
 
   @Output() edit = new EventEmitter<any>();
   @Output() delete = new EventEmitter<any>();
+  @Output() invest = new EventEmitter<any>();
+
+
 
   dataSource = new MatTableDataSource<any>();
   allColumns: string[] = [];

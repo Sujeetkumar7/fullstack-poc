@@ -25,7 +25,7 @@ export class TransferDialogComponent {
   ) {
     console.log(data.userId);
     this.filteredUsers = data.users.filter(user=> user?.userId !== data?.userId);
-   this.transferForm = this.fb.group({
+    this.transferForm = this.fb.group({
     sourceUserId: [data?.userId, Validators.required],
     destinationUserId: ['', Validators.required],
     amount: [
