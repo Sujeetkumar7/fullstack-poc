@@ -2,6 +2,7 @@ package com.wmn.backend.service;
 
 import com.wmn.backend.dto.UserResponseDto;
 import com.wmn.backend.model.InvestInStocks;
+import com.wmn.backend.model.InvestInStocksResponse;
 import com.wmn.backend.model.TransactionDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class StockMarketService {
         this.transactService = transactService;
     }
 
-    public TransactionDto investInStocks(InvestInStocks invest) {
+    public InvestInStocksResponse investInStocks(InvestInStocks invest) {
         if (invest == null || invest.getUserId() == null) {
             throw new IllegalArgumentException("Invalid input: invest or userId is null");
         }
@@ -57,8 +58,8 @@ public class StockMarketService {
                 }
                 updatedBalance = currentBalance.subtract(amount);
                 break;
-
             case "CREDIT":
+
                 updatedBalance = currentBalance.add(amount);
                 break;
 
@@ -66,17 +67,25 @@ public class StockMarketService {
                 throw new IllegalArgumentException("Unsupported transaction type: " + invest.getTransactionType());
         }
 
-        // Persist updated balance
         userService.updateUserBalance(user.getUserId(), updatedBalance.doubleValue());
-
-        // Record the transaction
-        return transactService.addTransactionRecord(
+        InvestInStocksResponse response = new InvestInStocksResponse();
+        TransactionDto txn =  transactService.addTransactionRecord(
                 user.getUserId(),
                 user.getUsername(),
                 type,
                 amount.doubleValue(),
                 "Stock Market"
         );
+        response.setCurrentBalance(updatedBalance.doubleValue());
+        response.setStockName(invest.getStockName());
+        response.setQuantity(invest.getQuantity());
+        response.setAmount(txn.getAmount());
+        response.setTransactionDate(txn.getTimestamp());
+        response.setTransactionType(txn.getTransactionType());
+        response.setUserId(txn.getUserId());
+        response.setTransactionId(txn.getTransactionId());
+        response.setPricePerUnit(invest.getPricePerUnit());
+        return response;
     }
 
 }

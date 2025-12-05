@@ -2,6 +2,7 @@ package com.wmn.backend.controller;
 
 
 import com.wmn.backend.model.InvestInStocks;
+import com.wmn.backend.model.InvestInStocksResponse;
 import com.wmn.backend.model.TransactionDto;
 import com.wmn.backend.service.StockMarketService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +26,7 @@ public class StockMarketController {
     }
 
     @PostMapping("/invest")
-    public ResponseEntity<TransactionDto> investInStocks(@NotNull @Valid @RequestBody InvestInStocks invest) {
+    public ResponseEntity<InvestInStocksResponse> investInStocks(@NotNull @Valid @RequestBody InvestInStocks invest) {
         log.info("Investing in stocks...");
         return ResponseEntity.ok(stockMarketService.investInStocks(invest));
     }

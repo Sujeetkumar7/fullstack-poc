@@ -7,13 +7,15 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class InvestInStocks {
+public class InvestInStocksResponse {
 
-    private String transactionId;
     private String userId;
+    private String transactionId;
     private String stockName;
-    private Integer quantity;
     private Double pricePerUnit;
+    private Integer quantity;
+    private Double amount;
     private String transactionType;
     private String transactionDate;
+    private Double currentBalance;
 }
