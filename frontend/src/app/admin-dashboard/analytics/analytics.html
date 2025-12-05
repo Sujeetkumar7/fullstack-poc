@@ -1,48 +1,50 @@
-<div class="card shadow-sm">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0">Analytics</h5>
-    <button
-      class="btn btn-success btn-sm"
-      (click)="startAnalytics()"
-      [disabled]="(analyticsState$ | async)?.isRunning"
-    >
-      {{ (analyticsState$ | async)?.isRunning ? 'Running...' : 'Run Analytics' }}
-    </button>
-  </div>
-
-  <div class="card-body">
-    <p *ngIf="(analyticsState$ | async)?.statusMessage">
-      {{ (analyticsState$ | async)?.statusMessage }}
-    </p>
-
-    <ng-container *ngIf="analyticsState$ | async as state">
+<div class="container-fluid p-3">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Analytics</h5>
       <button
-        *ngIf="state.isReportReady"
-        class="btn btn-outline-primary btn-sm mb-3"
-        (click)="downloadReport(state.xlsxBlob)"
+        class="btn btn-success btn-sm"
+        (click)="startAnalytics()"
+        [disabled]="(analyticsState$ | async)?.isRunning"
       >
-        Download Report
+        {{ (analyticsState$ | async)?.isRunning ? 'Running...' : 'Run Analytics' }}
       </button>
+    </div>
 
-      <div *ngIf="state.isReportReady">
-        <div *ngFor="let sheet of state.sheets" class="mb-4">
-          <h5 class="mb-2">{{ sheet.name }}</h5>
-          <div class="table-responsive" *ngIf="sheet.rows.length">
-            <table class="table table-bordered table-sm">
-              <thead class="table-light">
-                <tr>
-                  <th *ngFor="let h of sheet.headers">{{ h }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let row of sheet.rows">
-                  <td *ngFor="let col of row">{{ col }}</td>
-                </tr>
-              </tbody>
-            </table>
+    <div class="card-body">
+      <p *ngIf="(analyticsState$ | async)?.statusMessage">
+        {{ (analyticsState$ | async)?.statusMessage }}
+      </p>
+
+      <ng-container *ngIf="analyticsState$ | async as state">
+        <button
+          *ngIf="state.isReportReady"
+          class="btn btn-outline-primary btn-sm mb-3"
+          (click)="downloadReport(state.xlsxBlob)"
+        >
+          Download Report
+        </button>
+
+        <div *ngIf="state.isReportReady">
+          <div *ngFor="let sheet of state.sheets" class="mb-4">
+            <h5 class="mb-2">{{ sheet.name }}</h5>
+            <div class="table-responsive" *ngIf="sheet.rows.length">
+              <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                  <tr>
+                    <th *ngFor="let h of sheet.headers">{{ h }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of sheet.rows">
+                    <td *ngFor="let col of row">{{ col }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-    </ng-container>
+      </ng-container>
+    </div>
   </div>
 </div>

@@ -13,9 +13,105 @@
 
 .table {
   min-width: 620px;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .search-input {
   width: 100%;
   max-width: 200px;
 }
+
+.sticky-enabled .sticky-col {
+  position: sticky;
+  left: 0;
+  background: #fff;
+  z-index: 5;
+  white-space: nowrap;
+  width: 200px;
+  min-width: 200px;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.10);
+}
+
+.sticky-enabled .sticky-col::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -1px;
+  width: 2px;
+  height: 100%;
+  background-color: #d9d9d9;
+  z-index: 10;
+}
+
+.sticky-enabled .fixed-col {
+  white-space: nowrap;
+  width: 140px;
+  min-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 30px;
+}
+
+.sticky-enabled table {
+  table-layout: fixed !important;
+}
+
+:host ::ng-deep .table mat-header-row th.mat-header-cell {
+  background-color: #f0f8ff !important;
+  border-top: 2px solid #d9d9d9 !important;
+  border-bottom: 2px solid #d9d9d9 !important;
+  font-weight: bold;
+  color: #000;
+}
+
+
+:host ::ng-deep .sticky-enabled .sticky-col {
+  position: sticky;
+  left: 0;
+  background: #fff;
+  z-index: 5;
+  white-space: nowrap;
+  width: 200px;
+  min-width: 200px;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+}
+
+:host ::ng-deep .sticky-enabled .sticky-col::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -1px;
+  width: 2px;
+  height: 100%;
+  background-color: #d9d9d9;
+  z-index: 10;
+}
+
+:host ::ng-deep .sticky-enabled .fixed-col {
+  white-space: nowrap;
+  width: 140px;
+  min-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 8px;
+}
+
+:host ::ng-deep .sticky-enabled table {
+  table-layout: fixed !important;
+}
+
+:host ::ng-deep .table mat-row:last-child {
+  border-bottom: 2px solid #d9d9d9 !important;
+}
+
+.positive { color: #0aa50a; }
+.negative { color: #d50000; }
+
+.invest-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+

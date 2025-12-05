@@ -7,6 +7,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { formatIndianNumber, formatPercent, formatCurrencyINR } from '../../utils';
 
 @Component({
   selector: 'app-table',
@@ -28,6 +29,7 @@ export class Table implements AfterViewInit {
   @Input() showFilter: boolean = true;
   @Input() showActions: boolean = true;
   @Input() columnNames: { [key: string]: string } = {};
+  @Input() freezeFirstColumn: boolean = false;
 
   @Output() edit = new EventEmitter<any>();
   @Output() delete = new EventEmitter<any>();
@@ -44,6 +46,8 @@ export class Table implements AfterViewInit {
   pages: number[] = [];
   startIndex = 0;
   endIndex = 0;
+
+  hoveredRow: any = null;
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
@@ -76,7 +80,10 @@ export class Table implements AfterViewInit {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
 
     const filteredData = this.originalData.filter((item) =>
-      this.displayedColumns.some((col) => String(item[col]).toLowerCase().includes(filterValue))
+      this.displayedColumns.some((col) => {
+        const formatted = String(this.formatValue(col, item[col])).toLowerCase();
+        return formatted.includes(filterValue);
+      })
     );
 
     this.data = filteredData;
@@ -90,5 +97,45 @@ export class Table implements AfterViewInit {
 
   onDelete(row: any) {
     this.delete.emit(row);
+  }
+
+  formatValue(col: string, value: any) {
+    const decimalColumns = ['Ltp', 'High1Yr', 'Low1Yr'];
+    const zeroDecimalColumns = ['Volume'];
+    const percentColumns = ['PPerchange', 'PricePerchng1mon'];
+    const currencyColumns = ['Mcap'];
+
+    if (currencyColumns.includes(col)) {
+      return formatCurrencyINR(value);
+    }
+
+    if (percentColumns.includes(col)) {
+      return formatPercent(value);
+    }
+
+    if (zeroDecimalColumns.includes(col)) {
+      return formatIndianNumber(value, 0);
+    }
+
+    if (decimalColumns.includes(col)) {
+      return formatIndianNumber(value);
+    }
+
+    return value;
+  }
+
+  getColorClass(col: string, value: any): string {
+    const percentColumns = ['PPerchange', 'PricePerchng1mon'];
+
+    if (!percentColumns.includes(col)) return '';
+
+    const num = Number(value);
+    if (isNaN(num)) return '';
+
+    return num >= 0 ? 'positive' : 'negative';
+  }
+
+  onInvest(row: any) {
+    console.log('Invest clicked for:', row);
   }
 }

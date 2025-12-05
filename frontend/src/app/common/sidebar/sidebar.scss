@@ -1,13 +1,13 @@
 .sidebar {
   width: 220px;
-  height: calc(100vh - 50px);
+  height: calc(100vh - 64px);
   overflow-y: auto;
 }
 
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
-    top: 50px;
+    top: 64px;
     left: 0;
     z-index: 1050;
     background: #f8f9fa;

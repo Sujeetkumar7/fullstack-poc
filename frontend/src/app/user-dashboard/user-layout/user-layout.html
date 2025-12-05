@@ -1,5 +1,4 @@
 <div class="d-flex flex-column vh-100">
-  <!-- Header -->
   <app-header
     [title]="title"
     [username]="username"
@@ -7,8 +6,7 @@
     (logout)="logout()"
   ></app-header>
 
-  <!-- Main Content -->
-  <div class="d-flex flex-grow-1" style="margin-top: 50px; height: calc(100vh - 50px)">
+  <div class="d-flex flex-grow-1" style="margin-top: 64px; height: calc(100vh - 64px)">
     <app-sidebar
       [menuItems]="menuItems"
       [sidebarOpen]="sidebarOpen"
@@ -16,7 +14,6 @@
     ></app-sidebar>
 
     <div class="flex-grow-1 overflow-auto p-4">
-      <!-- Child routes render here -->
       <router-outlet></router-outlet>
     </div>
   </div>
