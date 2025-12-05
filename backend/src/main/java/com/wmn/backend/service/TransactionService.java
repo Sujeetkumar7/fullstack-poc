@@ -111,7 +111,7 @@ public class TransactionService {
 
     }
 
-    private TransactionDto addTransactionRecord(String sourceUserId, String username, String transactionType, double amount, String destinationUserName) {
+    public TransactionDto addTransactionRecord(String sourceUserId, String username, String transactionType, double amount, String destinationUserName) {
         TransactionDto txn = new TransactionDto();
         txn.setTransactionId(RandomStringUtils.randomAlphanumeric(8));
         txn.setUserId(sourceUserId);
