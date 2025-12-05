@@ -37,7 +37,7 @@ dyf = glueContext.create_dynamic_frame.from_catalog(
 # Convert to DataFrame
 df = dyf.toDF()
 
-# ✅ Fix: Convert BIGINT 'amount' to DOUBLE
+# Fix: Convert BIGINT 'amount' to DOUBLE
 df = df.withColumn("amount_double", F.col("amount").cast("double"))
 
 # Handle nulls (optional)

@@ -2,10 +2,12 @@ package com.wmn.backend.service;
 
 import com.wmn.backend.dto.UserResponseDto;
 import com.wmn.backend.model.InvestInStocks;
+import com.wmn.backend.model.TransactionDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -13,29 +15,68 @@ import java.util.Optional;
 public class StockMarketService {
     private final DynamoDbClient dynamoDbClient;
     private final UserService userService;
-    private final TransactionService transacService;
+    private final TransactionService transactService;
 
-    public StockMarketService(DynamoDbClient dynamoDbClient, UserService userService, TransactionService transacService) {
+    public StockMarketService(DynamoDbClient dynamoDbClient, UserService userService, TransactionService transactService) {
         this.dynamoDbClient = dynamoDbClient;
         this.userService = userService;
-        this.transacService = transacService;
+        this.transactService = transactService;
     }
-   public String investInStocks(InvestInStocks invest) {
-       Optional<UserResponseDto> sourceUserDetails = userService.getUserByUserId(invest.getUserId());
-       if(sourceUserDetails.get().getCurrentBalance() < (invest.getQuantity()*invest.getPricePerUnit())){
-           throw new IllegalArgumentException("Insufficient Balance");
-       }
 
-       deductAmountFromUser(sourceUserDetails.get(), invest.getQuantity()*invest.getPricePerUnit(), invest.getTransactionId());
+    public TransactionDto investInStocks(InvestInStocks invest) {
+        if (invest == null || invest.getUserId() == null) {
+            throw new IllegalArgumentException("Invalid input: invest or userId is null");
+        }
+        if (invest.getQuantity() <= 0 || invest.getPricePerUnit() <= 0) {
+            throw new IllegalArgumentException("Quantity and pricePerUnit must be positive");
+        }
+        if (invest.getTransactionType() == null || invest.getTransactionType().isBlank()) {
+            throw new IllegalArgumentException("Transaction type is required");
+        }
 
+        Optional<UserResponseDto> sourceUserDetails = userService.getUserByUserId(invest.getUserId());
+        UserResponseDto user = sourceUserDetails.orElseThrow(() ->
+                new IllegalArgumentException("User not found: " + invest.getUserId()));
 
-return null;
-   }
+        BigDecimal quantity = BigDecimal.valueOf(invest.getQuantity());
+        BigDecimal pricePerUnit = BigDecimal.valueOf(invest.getPricePerUnit());
+        BigDecimal amount = quantity.multiply(pricePerUnit);
 
-    private void deductAmountFromUser(UserResponseDto userResponseDto, double v, String transactionId) {
-        double updatedBalance = userResponseDto.getCurrentBalance() - v;
-        userService.updateUserBalance(userResponseDto.getUserId(), updatedBalance);
-        transacService.addTransactionRecord(userResponseDto.getUserId(), userResponseDto.getUsername(), "DEBIT - Bought Shares", v, "Transaction ID: "+transactionId);
+        String type = invest.getTransactionType().trim().toUpperCase();
 
+        if ("BUY".equals(type)) type = "DEBIT";
+        else if ("SELL".equals(type)) type = "CREDIT";
+
+        BigDecimal currentBalance = BigDecimal.valueOf(user.getCurrentBalance());
+
+        BigDecimal updatedBalance;
+        switch (type) {
+            case "DEBIT":
+                if (currentBalance.compareTo(amount) < 0) {
+                    throw new IllegalArgumentException("Insufficient balance");
+                }
+                updatedBalance = currentBalance.subtract(amount);
+                break;
+
+            case "CREDIT":
+                updatedBalance = currentBalance.add(amount);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unsupported transaction type: " + invest.getTransactionType());
+        }
+
+        // Persist updated balance
+        userService.updateUserBalance(user.getUserId(), updatedBalance.doubleValue());
+
+        // Record the transaction
+        return transactService.addTransactionRecord(
+                user.getUserId(),
+                user.getUsername(),
+                type,
+                amount.doubleValue(),
+                "Stock Market"
+        );
     }
+
 }

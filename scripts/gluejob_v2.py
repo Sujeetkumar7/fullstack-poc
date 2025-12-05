@@ -25,7 +25,7 @@ job.init(args['JOB_NAME'], args)
 bucket_name = "wmnanalytics"
 folder_prefix = "analytics-output"
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-excel_key = f"{folder_prefix}/Combined_Analytics_{timestamp}.xlsx"
+excel_key = f"{folder_prefix}/Analytics_Report_{timestamp}.xlsx"
 local_path = f"/tmp/Analytics_Report.xlsx"
 
 # Read data from Glue Catalog
