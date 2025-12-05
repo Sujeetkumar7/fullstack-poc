@@ -23,14 +23,11 @@ export class Stocks implements OnInit {
     'PPerchange',
     'Volume',
     'Mcap',
-    'Pe',
-    'IndustryPE',
     'High1Yr',
     'Low1Yr',
     'PricePerchng1mon',
-    'roe',
-    'eps',
-    'rsi',
+    'PricePerchng1year',
+    'ROCE',
   ];
 
   columnNames: any = {
@@ -39,14 +36,11 @@ export class Stocks implements OnInit {
     PPerchange: 'Change %',
     Volume: 'Volume',
     Mcap: 'Market Cap (Cr.)',
-    Pe: 'PE Ratio',
-    IndustryPE: 'Industry PE',
     High1Yr: '52W High',
     Low1Yr: '52W Low',
     PricePerchng1mon: '1M Returns',
-    roe: 'ROE',
-    eps: 'EPS',
-    rsi: 'RSI',
+    PricePerchng1year: '1 Yr Returns',
+    ROCE: 'ROCE',
   };
 
   constructor(private stocksService: StocksService, private cd: ChangeDetectorRef) {}
