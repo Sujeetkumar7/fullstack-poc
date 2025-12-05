@@ -8,7 +8,13 @@
   />
 
   <div class="table-responsive">
-    <table mat-table [dataSource]="dataSource" matSort class="table table-hover align-middle">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+      class="table align-middle"
+      [class.table-hover]="!freezeFirstColumn"
+    >
       <ng-container *ngFor="let col of displayedColumns; let i = index" [matColumnDef]="col">
         <th
           mat-header-cell
