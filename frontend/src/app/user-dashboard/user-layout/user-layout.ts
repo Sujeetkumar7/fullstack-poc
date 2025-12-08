@@ -19,7 +19,8 @@ export class UserLayout implements OnInit {
   sidebarOpen = false;
 
   menuItems = [
-    { label: 'Transactions', icon: 'bi-person', route: '/user' },
+    { label: 'Portfolio', icon: 'bi-person', route: '/user' },
+    { label: 'Transactions', icon: 'bi-currency-exchange', route: '/user/transactions' },
     { label: 'Stocks', icon: 'bi-graph-up', route: '/user/stocks' },
   ];
 

@@ -5,7 +5,7 @@
     </div>
 
     <div class="card-body">
-      <app-spinner *ngIf="loading" [size]="23" color="primary"></app-spinner>
+      <app-spinner *ngIf="loading" [size]="40"></app-spinner>
       <ng-container *ngIf="!loading">
         <app-table
           *ngIf="stocks.length > 0; else noData"
