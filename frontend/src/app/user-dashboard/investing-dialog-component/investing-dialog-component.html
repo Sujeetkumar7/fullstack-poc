@@ -21,7 +21,7 @@
             <i class="bi bi-wallet2 me-2"></i> Balance
           </div>
           <div class="value text-success">
-            {{ data.balance | currency:'INR':'symbol':'1.0-0' }}
+            {{ data.balance.toFixed(2) | currency:'INR'}}
           </div>
         </div>
       </div>
@@ -37,7 +37,7 @@
             <i class="bi bi-graph-up me-2"></i> Price Per Unit
           </div>
           <div class="value text-success">
-            {{ data.row.Ltp | currency:'INR':'symbol':'1.0-0' }}
+            {{ data.row.Ltp.toFixed(2)  | currency:'INR' }}
           </div>
         </div>
        </div>
@@ -71,15 +71,22 @@
 
 <div class="dialog-footer-separator"></div>
 
-<!-- Action Buttons -->
 <div mat-dialog-actions class="dialog-actions">
   <button type="button" class="btn btn-cancel" (click)="onClose()">
     <i class="bi bi-x-circle me-2"></i> Cancel
   </button>
-  <button type="button" class="btn btn-buy" (click)="submit('buy')" [disabled]="!investingForm.valid">
+
+  <!-- Buy button disabled only if amount > balance OR quantity invalid -->
+  <button type="button" class="btn btn-buy"
+          (click)="submit('buy')"
+          [disabled]="investingForm.get('quantity')?.invalid || calculatedAmount > data.balance">
     <i class="bi bi-cart-plus me-2"></i> Buy
   </button>
-  <button type="button" class="btn btn-sell" (click)="submit('sell')" [disabled]="!investingForm.valid">
+
+  <!-- Sell button disabled only if quantity invalid -->
+  <button type="button" class="btn btn-sell"
+          (click)="submit('sell')"
+          [disabled]="investingForm.get('quantity')?.invalid">
     <i class="bi bi-cart-dash me-2"></i> Sell
   </button>
 </div>

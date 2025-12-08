@@ -61,7 +61,14 @@ export class Stocks implements OnInit {
   ngOnInit() {
     this.loading = true;
     this.loadStocks();
-
+    this.authService.userDetails$.subscribe(user => {
+    if (user) {
+      this.userId = user.userId;
+      this.balance = user.currentBalance ?? 0;
+      this.userName = user.username;
+      this.cd.markForCheck();
+    }
+    });
     this.refreshSub = interval(10000)
       .pipe(switchMap(() => this.stocksService.getStocks()))
       .subscribe({
@@ -97,6 +104,7 @@ export class Stocks implements OnInit {
       },
     });
   }
+
   openInvestingDialog(row: any) {
   const dialogRef = this.dialog.open(InvestingDialogComponent, {
     width: '600px',
@@ -114,9 +122,7 @@ export class Stocks implements OnInit {
     if (result) {
       this.stocksService.saveInvestment(result).subscribe({
         next: () => {
-          const user = this.authService.getUserDetails();
-          this.balance = user?.currentBalance ?? this.balance;
-
+          this.authService.updateBalance(result.currentBalance);
           this.snackbar.open(
             `₹${result.amount} ${result.transactionType === 'buy' ? 'invested in' : 'sold from'} ${row?.DispSym}`,
             '',
