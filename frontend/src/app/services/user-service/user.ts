@@ -45,4 +45,10 @@ export class UserService {
       responseType: 'text' as 'json',
     });
   }
+
+  getUserPortfolio(userId: string): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}${API_ENDPOINTS.users}${API_ENDPOINTS.portfolio}/${userId}`
+    );
+  }
 }

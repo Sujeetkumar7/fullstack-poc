@@ -1,36 +1,10 @@
 <div class="container-fluid p-3">
-  <!-- Balance Section -->
-  <div class="card mb-4 shadow-sm">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0">Account Balance</h5>
-    </div>
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center">
-        <h3 class="mb-0">
-          Balance: <strong>{{ balance }}</strong>
-        </h3>
-        <button
-          type="button"
-          class="btn btn-primary btn-sm"
-          (click)="openTransfer()"
-          [disabled]="balance < 0"
-        >
-          Transfer Money
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Transaction History Section -->
   <div class="card shadow-sm">
     <div class="card-header">
       <h5 class="mb-0">Transaction History</h5>
     </div>
     <div class="card-body">
-      <!-- Spinner while loading -->
-      <app-spinner *ngIf="loading$ | async" [size]="23" color="primary"></app-spinner>
-
-      <!-- Table when loaded -->
+      <app-spinner *ngIf="loading$ | async" [size]="40" color="primary"></app-spinner>
       <ng-container *ngIf="!(loading$ | async)">
         <app-table
           *ngIf="transactions$ | async as transactions; else noData"

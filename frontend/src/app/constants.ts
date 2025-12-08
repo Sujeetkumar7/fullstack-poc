@@ -10,4 +10,5 @@ export const API_ENDPOINTS = {
   download: '/download',
   start: '/start',
   status: '/status',
+  portfolio: '/portfolio',
 };

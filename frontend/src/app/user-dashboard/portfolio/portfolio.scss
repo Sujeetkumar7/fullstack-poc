@@ -1,0 +1,112 @@
+.portfolio-container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+.summary-card {
+  border-left: 5px solid #007bff;
+}
+
+.info-box {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6c757d;
+  }
+
+  div {
+    font-size: 16px;
+    margin-top: 2px;
+  }
+}
+
+.portfolio-container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+.summary-card {
+  border-left: 5px solid #007bff;
+}
+
+.info-box {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6c757d;
+  }
+
+  div {
+    font-size: 16px;
+    margin-top: 2px;
+  }
+}
+
+.stocks-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.stock-card {
+  flex: 1 1 187px;
+  max-width: 100%;
+  transition: 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .stock-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .d-flex {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+
+      .label {
+        color: gray;
+        font-size: 13px;
+        white-space: nowrap;
+        flex: 0 0 auto;
+        margin-right: 8px;
+      }
+
+      .value {
+        flex: 1 1 0;
+        font-size: 15px;
+        text-align: right;
+        word-break: break-word;
+      }
+    }
+  }
+
+  .invest-btn {
+    border-radius: 8px;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 576px) {
+  .stock-card {
+    flex: 1 1 100%;
+  }
+
+  .stock-card .d-flex .value {
+    text-align: left;
+  }
+}

@@ -7,6 +7,7 @@ import { AuthGuard } from './services/auth-service/auth-guard';
 import { UserLayout } from './user-dashboard/user-layout/user-layout';
 import { AdminLayout } from './admin-dashboard/admin-layout/admin-layout';
 import { Stocks } from './user-dashboard/stocks/stocks';
+import { Portfolio } from './user-dashboard/portfolio/portfolio';
 
 export const routes: Routes = [
   { path: '', component: Login },
@@ -32,6 +33,10 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        component: Portfolio,
+      },
+      {
+        path: 'transactions',
         component: UserComponent,
       },
       {
