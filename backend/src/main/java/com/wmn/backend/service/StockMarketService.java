@@ -6,6 +6,7 @@ import com.wmn.backend.dto.UserResponseDto;
 import com.wmn.backend.model.InvestInStocks;
 import com.wmn.backend.model.InvestInStocksResponse;
 import com.wmn.backend.model.TransactionDto;
+import com.wmn.backend.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -55,21 +56,17 @@ public class StockMarketService {
         else if ("SELL".equals(type)) type = "CREDIT";
 
         BigDecimal currentBalance = BigDecimal.valueOf(user.getCurrentBalance());
-        BigDecimal updatedBalance;
-
-        switch (type) {
-            case "DEBIT":
+        BigDecimal updatedBalance = switch (type) {
+            case "DEBIT" -> {
                 if (currentBalance.compareTo(amount) < 0) {
                     throw new IllegalArgumentException("Insufficient balance");
                 }
-                updatedBalance = currentBalance.subtract(amount);
-                break;
-            case "CREDIT":
-                updatedBalance = currentBalance.add(amount);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported transaction type: " + invest.getTransactionType());
-        }
+                yield currentBalance.subtract(amount);
+            }
+            case "CREDIT" -> currentBalance.add(amount);
+            default ->
+                    throw new IllegalArgumentException("Unsupported transaction type: " + invest.getTransactionType());
+        };
 
         userService.updateUserBalance(user.getUserId(), updatedBalance.doubleValue());
 
@@ -179,6 +176,7 @@ public class StockMarketService {
 
         UserPortfolioResponse response = new UserPortfolioResponse();
         response.setUserId(user.getUserId());
+        response.setUsername(user.getUsername());
         response.setUserRole(user.getUserRole());
         response.setCurrentBalance(user.getCurrentBalance());
         response.setStocks(finalList);
@@ -215,8 +213,6 @@ public class StockMarketService {
     }
 
     public static String getcurrentTimeStamp() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return now.format(formatter);
+        return CommonUtils.getcurrentTimeStamp();
     }
 }
