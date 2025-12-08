@@ -12,9 +12,9 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
-
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -56,6 +56,7 @@ public class StockMarketService {
 
         BigDecimal currentBalance = BigDecimal.valueOf(user.getCurrentBalance());
         BigDecimal updatedBalance;
+
         switch (type) {
             case "DEBIT":
                 if (currentBalance.compareTo(amount) < 0) {
@@ -79,8 +80,8 @@ public class StockMarketService {
                 amount.doubleValue(),
                 "Stock Market"
         );
-        long now = System.currentTimeMillis();
-        savePortfolioTransaction(invest, type, now);
+
+        savePortfolioTransaction(invest, type);
 
         InvestInStocksResponse response = new InvestInStocksResponse();
         response.setCurrentBalance(updatedBalance.doubleValue());
@@ -117,36 +118,36 @@ public class StockMarketService {
 
             for (Map<String, AttributeValue> item : resp.items()) {
 
-                if (item.get("userId") == null || item.get("userId").s() == null)
+                if (!userId.equals(item.getOrDefault("userId", AttributeValue.builder().s(null).build()).s()))
                     continue;
 
-                if (!userId.equals(item.get("userId").s()))
-                    continue;
+                String stockName = item.getOrDefault("stockName", AttributeValue.builder().s(null).build()).s();
+                if (stockName == null) continue;
 
-                if (item.get("stockName") == null || item.get("stockName").s() == null)
-                    continue;
+                String qtyStr = Optional.ofNullable(item.get("quantity"))
+                        .map(AttributeValue::n)
+                        .orElse("0");
 
-                String stockName = item.get("stockName").s();
+                String priceStr = Optional.ofNullable(item.get("pricePerUnit"))
+                        .map(AttributeValue::n)
+                        .orElse("0");
 
-                String qtyStr = (item.get("quantity") != null && item.get("quantity").n() != null)
-                        ? item.get("quantity").n()
-                        : "0";
+                String txnType = Optional.ofNullable(item.get("transactionType"))
+                        .map(AttributeValue::s)
+                        .orElse("UNKNOWN");
 
-                String priceStr = (item.get("pricePerUnit") != null && item.get("pricePerUnit").n() != null)
-                        ? item.get("pricePerUnit").n()
-                        : "0";
-
-                String txnType = (item.get("transactionType") != null && item.get("transactionType").s() != null)
-                        ? item.get("transactionType").s()
-                        : "UNKNOWN";
-
-                String tsStr = (item.get("timestamp") != null && item.get("timestamp").n() != null)
-                        ? item.get("timestamp").n()
-                        : "0";
+                String timestampStr = null;
+                if (item.get("timestamp") != null) {
+                    if (item.get("timestamp").s() != null) {
+                        timestampStr = item.get("timestamp").s(); // New formatted timestamp
+                    } else if (item.get("timestamp").n() != null) {
+                        long millis = Long.parseLong(item.get("timestamp").n());
+                        timestampStr = convertMillisToFormattedDate(millis); // Old numeric timestamp
+                    }
+                }
 
                 int qty = Integer.parseInt(qtyStr);
                 double price = Double.parseDouble(priceStr);
-                long timestamp = Long.parseLong(tsStr);
 
                 PortfolioStockDto stock = portfolioMap.getOrDefault(stockName, new PortfolioStockDto());
                 stock.setStockName(stockName);
@@ -161,11 +162,10 @@ public class StockMarketService {
                 }
 
                 stock.setQuantity(currentQty);
-
                 stock.setAmount(stock.getAmount() + (qty * price));
 
-                if (timestamp > 0) {
-                    stock.setTransactionDate(String.valueOf(timestamp));
+                if (timestampStr != null) {
+                    stock.setTransactionDate(timestampStr);
                     stock.setTransactionType(txnType);
                 }
 
@@ -186,8 +186,10 @@ public class StockMarketService {
         return response;
     }
 
+    private void savePortfolioTransaction(InvestInStocks invest, String txnType) {
 
-    private void savePortfolioTransaction(InvestInStocks invest, String txnType, long timestamp) {
+        String formattedTimestamp = getcurrentTimeStamp();
+
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("transaction_id", AttributeValue.builder().s(UUID.randomUUID().toString()).build());
         item.put("userId", AttributeValue.builder().s(invest.getUserId()).build());
@@ -195,7 +197,7 @@ public class StockMarketService {
         item.put("pricePerUnit", AttributeValue.builder().n(String.valueOf(invest.getPricePerUnit())).build());
         item.put("quantity", AttributeValue.builder().n(String.valueOf(invest.getQuantity())).build());
         item.put("transactionType", AttributeValue.builder().s(txnType).build());
-        item.put("timestamp", AttributeValue.builder().n(String.valueOf(timestamp)).build());
+        item.put("timestamp", AttributeValue.builder().s(formattedTimestamp).build());
 
         dynamoDbClient.putItem(b -> b
                 .tableName("Portfolio_Transaction")
@@ -203,4 +205,18 @@ public class StockMarketService {
         );
     }
 
+    private String convertMillisToFormattedDate(long millis) {
+        LocalDateTime date = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(millis),
+                ZoneId.systemDefault()
+        );
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return date.format(formatter);
+    }
+
+    public static String getcurrentTimeStamp() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return now.format(formatter);
+    }
 }
