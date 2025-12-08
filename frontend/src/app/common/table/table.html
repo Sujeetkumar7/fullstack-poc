@@ -8,7 +8,13 @@
   />
 
   <div class="table-responsive">
-    <table mat-table [dataSource]="dataSource" matSort class="table table-hover align-middle">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+      class="table align-middle"
+      [class.table-hover]="!freezeFirstColumn"
+    >
       <ng-container *ngFor="let col of displayedColumns; let i = index" [matColumnDef]="col">
         <th
           mat-header-cell
@@ -31,7 +37,7 @@
           (mouseleave)="hoveredRow = null"
         >
           <ng-container *ngIf="col === 'Ltp' && hoveredRow === element; else defaultValue">
-            <button class="btn btn-sm btn-success invest-btn" (click)="onInvest(element)">
+            <button class="btn btn-sm btn-success invest-btn" (click)="invest.emit(element)">
               Invest
             </button>
           </ng-container>
