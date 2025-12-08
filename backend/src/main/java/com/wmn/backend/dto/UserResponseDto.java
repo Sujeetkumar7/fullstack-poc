@@ -16,13 +16,6 @@ public class UserResponseDto {
         this.userRole = userRole;
     }
 
-    public UserResponseDto(String userId, String username, String userRole) {
-        this.userId = userId;
-        this.username = username;
-        this.userRole = userRole;
-    }
-
-
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
     public String getUsername() { return username; }
