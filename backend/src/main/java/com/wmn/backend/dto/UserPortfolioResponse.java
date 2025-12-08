@@ -1,6 +1,5 @@
 package com.wmn.backend.dto;
 
-import com.wmn.backend.model.InvestInStocksResponse;
 import lombok.Data;
 import java.util.List;
 
