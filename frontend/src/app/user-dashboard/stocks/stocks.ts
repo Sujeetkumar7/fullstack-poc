@@ -9,7 +9,6 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { InvestingDialogComponent } from '../investing-dialog-component/investing-dialog-component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth-service/auth-service';
-import { rmSync } from 'fs';
 
 @Component({
   selector: 'app-stocks',
@@ -105,7 +104,7 @@ export class Stocks implements OnInit {
       },
     });
   }
-  
+
   openInvestingDialog(row: any) {
   const dialogRef = this.dialog.open(InvestingDialogComponent, {
     width: '600px',
