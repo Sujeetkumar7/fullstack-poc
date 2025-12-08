@@ -1,0 +1,13 @@
+package com.wmn.backend.dto;
+
+import com.wmn.backend.model.InvestInStocksResponse;
+import lombok.Data;
+import java.util.List;
+
+@Data
+public class UserPortfolioResponse {
+    private String userId;
+    private String userRole;
+    private double currentBalance;
+    private List<PortfolioStockDto> stocks;
+}

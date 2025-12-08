@@ -30,4 +30,11 @@ public class StockMarketController {
         return ResponseEntity.ok(stockMarketService.investInStocks(invest));
     }
 
+    /*
+    @PostMapping("/sell")
+    public ResponseEntity<InvestInStocksResponse> sellStock(@RequestBody InvestInStocks invest) {
+        InvestInStocksResponse response = stockMarketService.investInStocks(invest);
+        return ResponseEntity.ok(response);
+    }
+    */
 }
