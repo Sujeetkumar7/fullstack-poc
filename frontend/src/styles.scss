@@ -117,3 +117,15 @@ body {
 .cursor-pointer {
   cursor: pointer;
 }
+
+.custom-dialog-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mat-dialog-container {
+  border-radius: 8px;       /* rounded corners */
+  padding: 20px;            /* spacing inside */
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2); /* subtle shadow */
+}

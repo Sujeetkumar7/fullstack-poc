@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { balanceValidationForStocks } from '../../validators/balance-validator';
 
 @Component({
   selector: 'app-investing-dialog-component',
@@ -18,13 +19,20 @@ export class InvestingDialogComponent {
     public dialogRef: MatDialogRef<InvestingDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { row: any; userId: string; balance: number; userName: string }
   ) {
-    this.investingForm = this.fb.group({
-      name: [data?.row?.DispSym, Validators.required],
-      userId: [data?.userId, Validators.required],
-      quantity: ['', [Validators.required, Validators.min(1)]],
-      priceperUnit: [data?.row?.Ltp ?? 0],
-    });
+    this.investingForm = this.fb.group(
+      {
+        name: [data?.row?.DispSym, Validators.required],
+        userId: [data?.userId, Validators.required],
+        quantity: ['', [Validators.required, Validators.min(1)]],
+        pricePerUnit: [data?.row?.Ltp ?? 0],
+      },
+      {
+        validators: balanceValidationForStocks(data.balance, data?.row?.Ltp ?? 0),
+      }
+    );
   }
+
+
 
   get calculatedAmount(): number {
     const qty = this.investingForm.get('quantity')?.value || 0;

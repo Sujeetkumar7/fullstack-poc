@@ -69,6 +69,7 @@ export class Login {
             userId: response.userId,
             username: response.username,
             userRole: response.userRole,
+            currentBalance: response.currentBalance,
           });
           this.router.navigate([response.userRole === 'ADMIN' ? '/admin' : '/user']);
         },
