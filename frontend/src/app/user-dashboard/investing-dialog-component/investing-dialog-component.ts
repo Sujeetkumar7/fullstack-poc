@@ -3,13 +3,14 @@ import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { balanceValidationForStocks } from '../../validators/balance-validator';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-investing-dialog-component',
   standalone: true,
   templateUrl: './investing-dialog-component.html',
   styleUrls: ['./investing-dialog-component.scss'],
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MatIconModule],
 })
 export class InvestingDialogComponent {
   investingForm!: FormGroup;
@@ -21,18 +22,13 @@ export class InvestingDialogComponent {
   ) {
     this.investingForm = this.fb.group(
       {
-        name: [data?.row?.DispSym, Validators.required],
-        userId: [data?.userId, Validators.required],
         quantity: ['', [Validators.required, Validators.min(1)]],
-        pricePerUnit: [data?.row?.Ltp ?? 0],
       },
       {
         validators: balanceValidationForStocks(data.balance, data?.row?.Ltp ?? 0),
       }
     );
   }
-
-
 
   get calculatedAmount(): number {
     const qty = this.investingForm.get('quantity')?.value || 0;
@@ -43,8 +39,10 @@ export class InvestingDialogComponent {
   submit(transactionType: 'buy' | 'sell') {
     if (this.investingForm.valid) {
       const payload = {
-        ...this.investingForm.value,
+        stockName: this.data.row.DispSym,
+        userId: this.data.userId,
         transactionType,
+        quantity: this.investingForm.value.quantity,
         amount: this.calculatedAmount,
       };
       this.dialogRef.close(payload);
@@ -53,5 +51,9 @@ export class InvestingDialogComponent {
 
   getUsername() {
     return this.data.userName ?? '';
+  }
+
+  onClose(): void {
+    this.dialogRef.close();
   }
 }

@@ -1,52 +1,128 @@
-.form-container {
-  // background: #f8f9fa;
-  // border: 1px solid #dee2e6;
-  border-radius: 10px;
-  padding: 20px;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-label {
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.form-control-sm {
-  border-radius: 6px;
-  padding: 0.45rem 0.6rem;
-  font-size: 0.9rem;
-  border: 1px solid #dee2e6;
-}
-
-input.bg-light.text-success {
-  background-color: #e9f7ef !important;
-  color: #198754 !important;
-}
-
-input.bg-light.text-primary {
-  background-color: #e7f1ff !important;
-  color: #0d6efd !important;
-}
-
-.text-danger.small {
-  font-size: 0.75rem;
+::ng-deep .mat-dialog-container {
+  max-width: 420px; 
+  max-height: 85vh;  
+  overflow: hidden;   
+  border-radius: 12px;
+  padding: 0;
 }
 
 .dialog-title {
-  text-align: center;     
-  padding: 10px;          
+  text-align: center;
+  font-size: 1.4rem;
   font-weight: bold;
-  color: #0d6efd;        
-  border-bottom: 1px solid #ddd; 
-  margin: 0 0 12px 0;   
+  color: #0d6efd;
+  background: linear-gradient(to right, #e7f1ff, #ffffff);
+  padding: 14px;
+  border-bottom: 1px solid #ddd;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #6c757d;
+  cursor: pointer;
+}
+.close-btn:hover {
+  color: #000;
+}
+
+.form-container {
+  padding: 16px;
+}
+
+.info-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 4px;
+}
+
+.value {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #212529;
+}
+
+.text-success {
+  color: #198754;
+}
+
+.text-primary {
+  color: #0d6efd;
+}
+
+.form-control-sm {
+  height: 36px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
 }
 
 .dialog-footer-separator {
-  border-bottom: 1px solid #ddd;  
-  margin: 0 0 12px 0;            
+  border-top: 1px solid #ddd;
+  margin: 0;
 }
 
+.dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: #fff;
+}
 
+.btn {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel {
+  background-color: #f1f3f5;
+  color: #333;
+}
+
+.btn-buy {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.btn-sell {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close-btn i.bi-x-lg {
+  font-size: 0.9rem;   
+  line-height: 1;      
+  color: #6c757d;      
+}
+
+.close-btn:hover i.bi-x-lg {
+  color: #000;     
+}

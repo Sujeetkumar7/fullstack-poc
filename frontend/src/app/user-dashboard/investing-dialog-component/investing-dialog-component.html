@@ -1,87 +1,82 @@
-<h2 mat-dialog-title class="dialog-title">Stock Transaction</h2>
+<h2 mat-dialog-title class="dialog-title">
+  Invest
+  <button class="close-btn" aria-label="Close" (click)="onClose()">
+    <i class="bi bi-x-lg"></i>
+  </button>
+</h2>
+
 <div mat-dialog-content>
   <div class="form-container">
-    <form [formGroup]="investingForm" class="d-grid gap-3">
-  <!-- Stock Name -->
-  <div class="d-flex gap-3">
+    <form [formGroup]="investingForm" class="d-flex flex-column gap-3">
+      <div class="d-flex gap-3 flex-wrap">
+        <div class="info-card flex-fill">
+          <div class="label">
+            <i class="bi bi-person me-2"></i> User
+          </div>
+          <div class="value">{{ data.userName }}</div>
+        </div>
+        <div class="info-card flex-fill">
+          <div class="label">
+            <i class="bi bi-building me-2"></i> Stock Name
+          </div>
+          <div class="value">{{ data.row.DispSym }}</div>
+        </div>
+      </div>
+        <div class="info-card flex-fill">
+          <div class="label">
+            <i class="bi bi-wallet2 me-2"></i> Current Balance
+          </div>
+          <div class="value text-success">
+            {{ data.balance | currency:'INR':'symbol':'1.0-0' }}
+          </div>
+        </div>
+        <div class="info-card flex-fill">
+          <div class="label">
+            <i class="bi bi-graph-up me-2"></i> Price Per Unit
+          </div>
+          <div class="value text-success">
+            {{ data.row.Ltp | currency:'INR':'symbol':'1.0-0' }}
+          </div>
+        </div>
+      <div class="info-card">
+        <div class="label">
+          <i class="bi bi-calculator me-2"></i> Quantity
+        </div>
+        <input id="quantity" type="number" class="form-control form-control-sm"
+               formControlName="quantity" placeholder="Enter quantity" />
+        <div *ngIf="investingForm.get('quantity')?.invalid && investingForm.get('quantity')?.touched"
+             class="text-danger mt-1 small">
+          Quantity must be at least 1.
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="label">
+          <i class="bi bi-credit-card me-2"></i> Amount
+        </div>
+        <div class="value text-primary">
+          ₹{{ calculatedAmount.toFixed(2) }}
+        </div>
+        <div *ngIf="investingForm.errors?.['insufficientBalance']"
+             class="text-danger mt-1 small">
+          Amount exceeds current balance.
+        </div>
+      </div>
 
-  <div class="form-group flex-fill">
-    <label for="name" class="form-label fw-semibold">Stock Name</label>
-    <input id="name" type="text" class="form-control form-control-sm" formControlName="name" readonly />
-  </div>
-
-  <!-- User -->
-  <div class="form-group flex-fill">
-    <label for="userId" class="form-label fw-semibold">User</label>
-    <input id="userId" type="text" class="form-control form-control-sm" [value]="getUsername()" readonly />
-  </div>
-</div>
-<div class="row">
-  <!-- Current Balance -->
-  <div class="col-md-6">
-    <div class="form-group">
-      <label class="form-label fw-semibold">Current Balance</label>
-      <input type="text"
-             class="form-control form-control-sm bg-light fw-bold text-success"
-             [value]="data.balance | currency:'INR':'symbol':'1.0-0'"
-             readonly />
-    </div>
-  </div>
-
-  <!-- Price Per Unit -->
-  <div class="col-md-6">
-    <div class="form-group">
-      <label class="form-label fw-semibold">Price Per Unit</label>
-      <input type="text"
-             class="form-control form-control-sm bg-light fw-bold text-success"
-             [value]="data.row.Ltp | currency:'INR':'symbol':'1.0-0'"
-             readonly />
-    </div>
-  </div>
-</div>
-
-   <div class="d-flex gap-3">
-  <!-- Quantity -->
-  <div class="form-group flex-fill">
-    <label for="quantity" class="form-label fw-semibold">Quantity</label>
-    <input id="quantity" type="number" class="form-control form-control-sm"
-           formControlName="quantity" placeholder="Enter quantity" />
-    <div *ngIf="investingForm.get('quantity')?.invalid && investingForm.get('quantity')?.touched"
-         class="text-danger mt-1 small">
-      Quantity must be at least 1.
-    </div>
-  </div>
-
-  <!-- Amount -->
-  <div class="form-group flex-fill">
-  <label class="form-label fw-semibold">Amount</label>
-  <input type="text"
-         class="form-control form-control-sm bg-light fw-bold text-primary"
-         [value]="calculatedAmount | currency:'INR':'symbol':'1.2-2'"
-         readonly />
-  <div *ngIf="investingForm.errors?.['insufficientBalance']"
-       class="text-danger mt-1 small">
-    Amount exceeds current balance.
-  </div>
-</div>
-
-</div>
     </form>
   </div>
 </div>
 
-<!-- Action Buttons -->
-<div class="dialog-footer-separator"></div>   <!-- border line -->
+<div class="dialog-footer-separator"></div>
 
-<div mat-dialog-actions align="end" class="d-flex justify-content-end gap-2 mt-4" style="padding: 10px;">
-  <button type="button" class="btn btn-outline-primary btn-sm px-3" (click)="dialogRef.close(false)">
-    Cancel
+<!-- Action Buttons -->
+<div mat-dialog-actions class="dialog-actions">
+  <button type="button" class="btn btn-cancel" (click)="onClose()">
+    <i class="bi bi-x-circle me-2"></i> Cancel
   </button>
-  <button type="button" class="btn btn-primary btn-sm px-3" (click)="submit('buy')" [disabled]="!investingForm.valid">
-    Buy
+  <button type="button" class="btn btn-buy" (click)="submit('buy')" [disabled]="!investingForm.valid">
+    <i class="bi bi-cart-plus me-2"></i> Buy
   </button>
-  <button type="button" class="btn btn-primary btn-sm px-3" (click)="submit('sell')" [disabled]="!investingForm.valid">
-    Sell
+  <button type="button" class="btn btn-sell" (click)="submit('sell')" [disabled]="!investingForm.valid">
+    <i class="bi bi-cart-dash me-2"></i> Sell
   </button>
 </div>
-
