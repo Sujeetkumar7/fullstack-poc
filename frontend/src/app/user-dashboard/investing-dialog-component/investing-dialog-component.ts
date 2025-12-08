@@ -44,6 +44,7 @@ export class InvestingDialogComponent {
         transactionType,
         quantity: this.investingForm.value.quantity,
         amount: this.calculatedAmount,
+        pricePerUnit: this.data.row.Ltp
       };
       this.dialogRef.close(payload);
     }
