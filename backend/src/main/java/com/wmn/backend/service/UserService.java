@@ -3,10 +3,10 @@ package com.wmn.backend.service;
 import com.wmn.backend.dto.UpdateUserDto;
 import com.wmn.backend.dto.UserDto;
 import com.wmn.backend.dto.UserResponseDto;
+import com.wmn.backend.model.InvestInStocksResponse;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,6 +18,7 @@ public class UserService {
 
     public UserService(DynamoDbClient dynamoDbClient) {
         this.dynamoDbClient = dynamoDbClient;
+
     }
 
     private String generateUserId() {
@@ -216,4 +217,40 @@ public class UserService {
 
         return Optional.of(mapItemToResponse(item));
     }
+
+    /*
+    public List<InvestInStocksResponse> getUserPortfolio(String userId) {
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("userId is required");
+        }
+
+        ScanRequest req = ScanRequest.builder()
+                .tableName("Portfolio_Transaction")
+                .build();
+
+        ScanResponse resp = dynamoDbClient.scan(req);
+
+        if (resp == null || resp.items() == null)
+            return Collections.emptyList();
+
+        return resp.items().stream()
+                .map(this::mapPortfolioItem)
+                .filter(p -> userId.equals(p.getUserId()))
+                .collect(Collectors.toList());
+    }
+
+    private InvestInStocksResponse mapPortfolioItem(Map<String, AttributeValue> item) {
+        InvestInStocksResponse res = new InvestInStocksResponse();
+
+        res.setUserId(item.get("userId").s());
+        res.setStockName(item.get("stockName").s());
+        res.setQuantity(Integer.parseInt(item.get("quantity").n()));
+        res.setPricePerUnit(Double.parseDouble(item.get("pricePerUnit").n()));
+        res.setAmount(Double.parseDouble(item.get("amount").n()));
+        res.setTransactionDate(item.get("timestamp").s());
+        res.setTransactionType(item.get("transactionType").s());
+
+        return res;
+    }
+    */
 }

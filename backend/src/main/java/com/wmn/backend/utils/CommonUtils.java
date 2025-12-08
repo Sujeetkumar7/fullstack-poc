@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 public class CommonUtils {
 
     public static final String TRANSACTION = "transaction";
+    public static final String PORTFOLIO = "Portfolio_Transaction";
     public static final String BUCKET_NAME = "wmnanalytics";
     public static final String FOLDER_PREFIX = "analytics-output/";
     public static final Region REGION = Region.AP_SOUTH_2;
