@@ -36,19 +36,34 @@ export class InvestingDialogComponent {
     return qty * ltp;
   }
 
-  submit(transactionType: 'buy' | 'sell') {
-    if (this.investingForm.valid) {
-      const payload = {
-        stockName: this.data.row.DispSym,
-        userId: this.data.userId,
-        transactionType,
-        quantity: this.investingForm.value.quantity,
-        amount: this.calculatedAmount,
-        pricePerUnit: this.data.row.Ltp
-      };
-      this.dialogRef.close(payload);
+ submit(transactionType: 'buy' | 'sell') {
+  if (this.investingForm.valid) {
+    const qty = this.investingForm.value.quantity;
+    const ltp = this.data.row.Ltp;
+    const amount = qty * ltp;
+
+    // calculate new balance
+    let newBalance = this.data.balance;
+    if (transactionType === 'buy') {
+      newBalance = newBalance - amount;
+    } else {
+      newBalance = newBalance + amount;
     }
+
+    const payload = {
+      stockName: this.data.row.DispSym,
+      userId: this.data.userId,
+      transactionType,
+      quantity: qty,
+      amount,
+      pricePerUnit: ltp,
+      currentBalance: newBalance   // ✅ include updated balance
+    };
+
+    this.dialogRef.close(payload);
   }
+}
+
 
   getUsername() {
     return this.data.userName ?? '';
