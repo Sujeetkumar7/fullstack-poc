@@ -15,20 +15,22 @@
           </div>
           <div class="value">{{ data.userName }}</div>
         </div>
-        <div class="info-card flex-fill">
+
+         <div class="info-card flex-fill">
           <div class="label">
-            <i class="bi bi-building me-2"></i> Stock Name
-          </div>
-          <div class="value">{{ data.row.DispSym }}</div>
-        </div>
-      </div>
-        <div class="info-card flex-fill">
-          <div class="label">
-            <i class="bi bi-wallet2 me-2"></i> Current Balance
+            <i class="bi bi-wallet2 me-2"></i> Balance
           </div>
           <div class="value text-success">
             {{ data.balance | currency:'INR':'symbol':'1.0-0' }}
           </div>
+        </div>
+      </div>
+       <div class="d-flex gap-3 flex-wrap">
+         <div class="info-card flex-fill">
+          <div class="label">
+            <i class="bi bi-building me-2"></i> Stock Name
+          </div>
+          <div class="value">{{ data.row.DispSym }}</div>
         </div>
         <div class="info-card flex-fill">
           <div class="label">
@@ -38,6 +40,7 @@
             {{ data.row.Ltp | currency:'INR':'symbol':'1.0-0' }}
           </div>
         </div>
+       </div>
       <div class="info-card">
         <div class="label">
           <i class="bi bi-calculator me-2"></i> Quantity
