@@ -3,7 +3,6 @@ package com.wmn.backend.controller;
 
 import com.wmn.backend.model.InvestInStocks;
 import com.wmn.backend.model.InvestInStocksResponse;
-import com.wmn.backend.model.TransactionDto;
 import com.wmn.backend.service.StockMarketService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
