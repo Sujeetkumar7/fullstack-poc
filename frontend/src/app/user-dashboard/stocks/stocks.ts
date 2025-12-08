@@ -99,8 +99,8 @@ export class Stocks implements OnInit {
   }
   openInvestingDialog(row: any) {
   const dialogRef = this.dialog.open(InvestingDialogComponent, {
-    width: '500px',
-    maxHeight: '66vh',
+    width: '600px',
+    maxHeight: '90vh',
     panelClass: 'custom-dialog-container', // optional styling
     data: {
       row,
