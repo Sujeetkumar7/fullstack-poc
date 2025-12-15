@@ -1,0 +1,33 @@
+{
+  "name": "rsd-cross-platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "build:web": "npm --workspace apps/web run build",
+    "dev:native": "npm --workspace apps/native run start",
+    "dev:native:offline": "npm --workspace apps/native run start:offline",
+    "dev:native:lan": "npm --workspace apps/native run start:lan",
+    "dev:native:localhost": "npm --workspace apps/native run start:localhost",
+    "dev:native:reset": "npm --workspace apps/native run reset",
+    "dev:native:reset:offline": "npm --workspace apps/native run reset:offline",
+    "dev:native:android": "npm --workspace apps/native run android",
+    "dev:native:ios": "npm --workspace apps/native run ios"
+  },
+  "overrides": {
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.28.3",
+    "@babel/core": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "babel-plugin-module-resolver": "^5.0.2"
+  },
+  "dependencies": {
+    "vite-plugin-babel": "^1.3.2"
+  }
+}
