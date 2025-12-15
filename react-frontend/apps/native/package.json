@@ -1,5 +1,5 @@
 {
-  "name": "native",
+  "name": "@rsd/native",
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
@@ -12,9 +12,9 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
-    "@rsd/ui": "workspace:*",
-    "@rsd/api": "workspace:*",
-    "@rsd/state": "workspace:*",
+    "@rsd/ui": "file:../../packages/ui",
+    "@rsd/api": "file:../../packages/api",
+    "@rsd/state": "file:../../packages/state",
     "@babel/core": "^7.28.5",
     "@expo/metro-runtime": "^6.1.2",
     "@react-navigation/native": "^7.1.25",

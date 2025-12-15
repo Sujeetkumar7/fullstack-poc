@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@rsd/web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,9 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@rsd/ui": "workspace:*",
-    "@rsd/api": "workspace:*",
-    "@rsd/state": "workspace:*",
+    "@rsd/ui": "file:../../packages/ui",
+    "@rsd/api": "file:../../packages/api",
+    "@rsd/state": "file:../../packages/state",
     "@reduxjs/toolkit": "^2.11.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
