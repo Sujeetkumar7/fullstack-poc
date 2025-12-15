@@ -40,17 +40,9 @@ ng serve
 
 ```
 cd react-frontend
-Then navigate to /app/web/package.json & /app/native/package.json and remove following lines from dependencies -
-    "@rsd/ui": "workspace:*",
-    "@rsd/api": "workspace:*",
-    "@rsd/state": "workspace:*",
 npm install
-Then navigate to /app/web/package.json & /app/native/package.json and add the following lines back in dependencies -
-    "@rsd/ui": "workspace:*",
-    "@rsd/api": "workspace:*",
-    "@rsd/state": "workspace:*",
 npm run dev:web // start web app in development mode
-num run dev:native // start the native app in development mode
+num run dev:native // start native app in development mode
 ```
 
 Application runs at: http://localhost:4200
