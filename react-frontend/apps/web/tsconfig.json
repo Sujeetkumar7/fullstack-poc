@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@rsd/ui": ["../packages/ui/src"],
+      "@rsd/ui/*": ["../packages/ui/src/*"]
+    },
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["src", "../packages/ui/src"]
+}
