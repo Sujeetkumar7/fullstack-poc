@@ -70,3 +70,15 @@ export async function request<T>(
   }
   return (await res.text()) as unknown as T;
 }
+
+export async function requestBlob(
+  url: string,
+  init: RequestInit = {}
+): Promise<Blob> {
+  const res = await fetch(API_BASE_URL + url, init);
+  if (!res.ok) {
+    const msg = await res.text().catch(() => res.statusText);
+    throw new Error(msg || `HTTP ${res.status}`);
+  }
+  return await res.blob();
+}
