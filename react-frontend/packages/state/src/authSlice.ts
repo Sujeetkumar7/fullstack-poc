@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import storage from "./storage";
-import { getUserById } from "@rsd/api";
+import { getUserByUsername } from "@rsd/api";
 
 // Slice-level user (required fields)
 export type User = {
@@ -47,7 +47,7 @@ export const loginUser = createAsyncThunk<User, string>(
   "auth/loginUser",
   async (username) => {
     try {
-      const apiUser = await getUserById(username);
+      const apiUser = await getUserByUsername(username);
       const user = normalizeUser(apiUser as RawUser, username);
       await storage.setItem(STORAGE_KEY, JSON.stringify(user));
       return user;

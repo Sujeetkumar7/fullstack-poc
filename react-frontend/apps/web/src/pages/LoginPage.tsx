@@ -12,14 +12,14 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const from =
-    (location.state as FromState | undefined)?.from?.pathname ?? "/dashboard";
+    (location.state as FromState | undefined)?.from?.pathname ?? "/admin";
   const status = useAppSelector(selectAuthStatus);
   const error = useAppSelector(selectAuthError);
 
   useEffect(() => {
     const user = localStorage.getItem("rsd_user");
     if (user) {
-      navigate("/dashboard", { replace: true });
+      navigate("/admin", { replace: true });
     }
   }, [navigate]);
 

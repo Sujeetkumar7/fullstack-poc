@@ -4,7 +4,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectUser, selectAuthStatus, logoutUser } from "@rsd/state";
 import { Header, Sidebar } from "@rsd/ui";
-import { getUsersList } from "@rsd/api";
+import {
+  getUsersList,
+  createUser,
+  updateUser,
+  deleteUser as deleteUserApi,
+} from "@rsd/api";
 import {
   Card,
   CardHeader,
@@ -14,17 +19,15 @@ import {
   Stack,
   InputAdornment,
   TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
+
 import UsersTable from "../components/UserTable";
 import UserAddEditDialog from "../components/AddEditDialog";
-import type { Role, UserRow } from "../types/users";
 import ConfirmDialog from "../components/ConfirmDialog";
+
+import type { Role, UserRow } from "../types/users";
 
 const tokens = { headerH: 56, sidebarW: 240 };
 
@@ -99,7 +102,7 @@ export default function Dashboard() {
   };
 
   const menuItems = [
-    { key: "users", label: "User Management", route: "/dashboard", icon: "👥" },
+    { key: "users", label: "User Management", route: "/admin", icon: "👥" },
     { key: "analytics", label: "Analytics", route: "/analytics", icon: "📊" },
   ];
   const activeKey =
@@ -212,62 +215,106 @@ export default function Dashboard() {
     Partial<UserRow> | undefined
   >(undefined);
 
+  const [saveError, setSaveError] = React.useState<string>(""); // inline save error
+
   const openAddUser = () => {
     setEditMode(false);
     setEditingUser(undefined);
+    setSaveError("");
     setOpenAddEdit(true);
   };
   const onEditUser = (u: UserRow) => {
     setEditMode(true);
     setEditingUser(u);
+    setSaveError("");
     setOpenAddEdit(true);
   };
+
   const onSubmitUser = async (payload: {
     userId?: string;
     username: string;
     currentBalance: number;
     userRole: Role;
   }) => {
-    if (editMode && payload.userId) {
-      setRows((prev) =>
-        prev.map((r) =>
-          r.userId === payload.userId
-            ? {
-                ...r,
-                username: payload.username,
-                currentBalance: payload.currentBalance,
-                userRole: payload.userRole,
-              }
-            : r
-        )
-      );
-    } else {
-      const newId = `U${String(Date.now()).slice(-4)}`;
-      setRows((prev) => [
-        {
-          userId: newId,
+    try {
+      setSaveError("");
+
+      if (editMode && payload.userId) {
+        await updateUser(payload.userId, {
+          userId: payload.userId,
           username: payload.username,
           currentBalance: payload.currentBalance,
           userRole: payload.userRole,
-        },
-        ...prev,
-      ]);
+        });
+        setRows((prev) =>
+          prev.map((r) =>
+            r.userId === payload.userId
+              ? {
+                  ...r,
+                  username: payload.username,
+                  currentBalance: payload.currentBalance,
+                  userRole: payload.userRole,
+                }
+              : r
+          )
+        );
+      } else {
+        const created = await createUser({
+          username: payload.username,
+          currentBalance: payload.currentBalance,
+          userRole: payload.userRole,
+        });
+
+        const newRow: UserRow = {
+          userId:
+            (created as any)?.userId ?? `U${String(Date.now()).slice(-4)}`,
+          username: (created as any)?.username ?? payload.username,
+          currentBalance:
+            typeof (created as any)?.currentBalance === "number"
+              ? (created as any).currentBalance
+              : payload.currentBalance,
+          userRole: (created as any)?.userRole
+            ? ((created as any).userRole as Role)
+            : (payload.userRole as Role),
+        };
+
+        setRows((prev) => [newRow, ...prev]);
+      }
+
+      setOpenAddEdit(false);
+    } catch (e: any) {
+      const msg =
+        e?.message ?? (typeof e === "string" ? e : "Failed to save user.");
+      setSaveError(msg);
     }
-    setOpenAddEdit(false);
   };
 
   const [openDelete, setOpenDelete] = React.useState(false);
+  const [deleteLoading, setDeleteLoading] = React.useState(false);
   const [userToDelete, setUserToDelete] = React.useState<UserRow | null>(null);
+
   const confirmDelete = (u: UserRow) => {
     setUserToDelete(u);
     setOpenDelete(true);
   };
-  const closeDelete = () => setOpenDelete(false);
+  const closeDelete = () => {
+    if (deleteLoading) return;
+    setOpenDelete(false);
+  };
+
   const deleteUser = async () => {
     if (!userToDelete) return;
-    setRows((prev) => prev.filter((r) => r.userId !== userToDelete.userId));
-    setOpenDelete(false);
-    setUserToDelete(null);
+    try {
+      setDeleteLoading(true);
+      await deleteUserApi(userToDelete.userId);
+      setRows((prev) => prev.filter((r) => r.userId !== userToDelete.userId));
+      setOpenDelete(false);
+      setUserToDelete(null);
+    } catch (e: any) {
+      console.error("Delete failed:", e?.message ?? e);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   return (
@@ -330,6 +377,12 @@ export default function Dashboard() {
                 </Typography>
               ) : null}
 
+              {saveError ? (
+                <Typography color="error" variant="body2" sx={{ mb: 1 }}>
+                  {saveError}
+                </Typography>
+              ) : null}
+
               <UsersTable
                 rows={paged}
                 totalCount={sorted.length}
@@ -367,6 +420,7 @@ export default function Dashboard() {
                 <strong>{userToDelete?.username ?? ""}</strong>?
               </Typography>
             }
+            loading={deleteLoading}
             onClose={closeDelete}
             onConfirm={deleteUser}
           />
