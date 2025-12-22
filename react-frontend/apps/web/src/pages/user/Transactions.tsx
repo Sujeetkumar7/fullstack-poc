@@ -1,24 +1,80 @@
-
 import * as React from "react";
-import { Card, CardHeader, CardContent, Typography, Stack, TextField, InputAdornment, Alert } from "@mui/material";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  Stack,
+  TextField,
+  InputAdornment,
+  Alert,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import {
+  getTransactionHistory,
+  Transaction,
+} from "../../../../../packages/api/src/transactions"; // adjust path
+import {  useAppSelector } from "../../store/hooks";
+import { selectUser} from "@rsd/state";
 
 export default function Transactions() {
+  const authUser = useAppSelector(selectUser);
   const [query, setQuery] = React.useState("");
-  const [loading] = React.useState(false); // wire to your store/API
-  const [rows] = React.useState<any[]>([]); // wire to your data
+  const [loading, setLoading] = React.useState(false);
+  const [rows, setRows] = React.useState<Transaction[]>([]);
+  const [error, setError] = React.useState("");
+  const userId = authUser?.userId ?? (authUser as any)?.id ?? "—";
+
+  React.useEffect(() => {
+    if (!userId) return;
+    let mounted = true;
+    setLoading(true);
+    getTransactionHistory(userId)
+      .then((data) => {
+        if (mounted) setRows(data);
+      })
+      .catch((e) => {
+        if (mounted) setError(e.message ?? "Failed to load transactions");
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [userId]);
+
+  const filtered = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((r) =>
+      [r.transactionId, r.transactionType, r.username, r.userId, r.fromUser, r.toUser]
+        .filter(Boolean)
+        .some((v) => String(v).toLowerCase().includes(q))
+    );
+  }, [rows, query]);
 
   return (
     <Card sx={{ mt: 2 }}>
       <CardHeader
-        title="Transactions"
+        title="Transaction History"
         action={
           <TextField
             size="small"
             placeholder="Search transactions"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment> }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
           />
         }
       />
@@ -29,10 +85,39 @@ export default function Transactions() {
             <SkeletonLine />
             <SkeletonLine />
           </Stack>
-        ) : rows.length === 0 ? (
-          <Alert severity="info">No transactions found. Connect your API to populate data.</Alert>
+        ) : error ? (
+          <Alert severity="error">{error}</Alert>
+        ) : filtered.length === 0 ? (
+          <Alert severity="info">No transactions found.</Alert>
         ) : (
-          <Typography variant="body2">Render your transactions table here.</Typography>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Transaction ID</TableCell>
+                <TableCell>User ID</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>From User</TableCell>
+                <TableCell>To User</TableCell>
+                <TableCell>Timestamp</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filtered.map((t) => (
+                <TableRow key={t.transactionId}>
+                  <TableCell>{t.transactionId}</TableCell>
+                  <TableCell>{t.userId ?? "—"}</TableCell>
+                  <TableCell>{t.transactionType}</TableCell>
+                  <TableCell>₹{t.amount}</TableCell>
+                  <TableCell>{t.fromUsername ?? "—"}</TableCell>
+                  <TableCell>{t.toUsername ?? "—"}</TableCell>
+                  <TableCell>
+                    {new Date(t.timestamp).toLocaleString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </CardContent>
     </Card>
@@ -40,5 +125,13 @@ export default function Transactions() {
 }
 
 function SkeletonLine() {
-  return <div style={{ height: 16, background: "var(--mui-palette-divider)", borderRadius: 6 }} />;
+  return (
+    <div
+      style={{
+        height: 16,
+        background: "var(--mui-palette-divider)",
+        borderRadius: 6,
+      }}
+    />
+  );
 }
