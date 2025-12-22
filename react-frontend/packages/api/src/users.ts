@@ -15,6 +15,23 @@ export type UserRequest = {
   currentBalance: number | string;
 };
 
+export type PortfolioStockDto = {
+  stockName: string;
+  pricePerUnit: number;
+  quantity: number;
+  amount: number;
+  transactionType: string;
+  transactionDate: string;
+};
+
+export type UserPortfolioResponse = {
+  userId: string;
+  username: string;
+  userRole: string;
+  currentBalance: number;
+  stocks: PortfolioStockDto[];
+};
+
 export type UserResponse = User;
 
 export async function getUserByUsername(
@@ -60,5 +77,12 @@ export async function deleteUser(userId: string): Promise<string> {
   const safe = encodeURIComponent(userId);
   return request<string>(`/users/${safe}`, {
     method: "DELETE",
+  });
+}
+
+export async function getUserPortfolio(userId: string): Promise<UserPortfolioResponse> {
+  const safe = encodeURIComponent(userId);
+  return request<UserPortfolioResponse>(`/users/portfolio/${safe}`, {
+    method: "GET",
   });
 }
