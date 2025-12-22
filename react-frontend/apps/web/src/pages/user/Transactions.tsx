@@ -52,7 +52,7 @@ export default function Transactions() {
     const q = query.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter((r) =>
-      [r.transactionId, r.transactionType, r.username, r.userId, r.fromUser, r.toUser]
+      [r.transactionId, r.transactionType, r.username, r.userId, r.fromUsername, r.toUsername]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(q))
     );
