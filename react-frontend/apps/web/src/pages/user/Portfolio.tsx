@@ -35,6 +35,7 @@ import {
   GridRenderCellParams,
 } from "@mui/x-data-grid";
 import { useTheme } from "@mui/material/styles";
+import TransferMoneyDialog from "./TransferMoneyDialog";
 
 /* -------------------- Safe formatters -------------------- */
 function formatCurrencySafe(
@@ -112,6 +113,10 @@ export default function Portfolio() {
   const authUser = useAppSelector(selectUser);
   const status = useAppSelector(selectAuthStatus);
   const navigate = useNavigate();
+  
+  const [openTransfer, setOpenTransfer] = React.useState(false);
+  const openTransferDialog = () => setOpenTransfer(true);
+  const closeTransferDialog = () => setOpenTransfer(false);
 
   // Guard for unauthenticated
   if (!authUser && status !== "loading") {
@@ -317,6 +322,14 @@ export default function Portfolio() {
               >
                 Refresh
               </Button>
+               <Button
+                variant="outlined"
+                size="small"
+                disabled={loading || !authUser?.userId}
+                onClick={openTransferDialog} 
+              >
+                Transfer Money
+              </Button>
             </Stack>
           }
         />
@@ -398,6 +411,19 @@ export default function Portfolio() {
           )}
         </CardContent>
       </Card>
+      
+       <TransferMoneyDialog
+        open={openTransfer}
+        fromUserId={userId}
+        fromUsername={username}
+        currentBalance={balance}
+        onClose={closeTransferDialog}
+        onSuccess={() => {
+          // Refresh the portfolio after a successful transfer
+          refresh();
+        }}
+      />
+
     </html.div>
   );
 }
