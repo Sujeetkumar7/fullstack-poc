@@ -40,3 +40,14 @@
 .read-the-docs {
   color: #888;
 }
+
+.success-snackbar .MuiAlert-root {
+  background-color: #2e7d32 !important; /* green */
+  color: #fff !important;
+}
+
+.error-snackbar .MuiAlert-root {
+  background-color: #d32f2f !important; /* red */
+  color: #fff !important;
+}
+
